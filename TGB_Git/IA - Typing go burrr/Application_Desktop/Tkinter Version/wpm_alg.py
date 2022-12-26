@@ -1,5 +1,6 @@
 # calculate words per minute and accuracy
 def calculate_wpm_and_accuracy(time_taken, num_words):
+  
   # calculate words per minute
   wpm = num_words / (time_taken / 60)
   

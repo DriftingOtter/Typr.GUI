@@ -8,17 +8,15 @@
 # License: N/A
 # ------------------------------------------------------------------------------#
 
-
-# Imports And Dependencies
-from tkinter import *
+# Imports And Frameworks
 import ctypes
 import random
 import string
-import time
 import threading
+from tkinter import *
+from tkinter import Text
 
-
-# Defs
+# Def
 
 time_limit_vals = [15, 30, 60, 120]
 current_time_limit = time_limit_vals[0]
@@ -26,7 +24,6 @@ current_time_limit_str = "Time Limit:", str(current_time_limit)
 
 
 def change_time_limit():
-
     global time_limit_vals, current_time_limit, current_time_limit_str
 
     if current_time_limit == time_limit_vals[0]:
@@ -53,15 +50,14 @@ def change_time_limit():
     time_display_TEXT.config(state=DISABLED)
 
 
-# Funtion For Clock Count Down
+# Function For Clock Count Down
 countdown_clock = None
 
 
 def countdown(count):
-
     global countdown_clock
 
-    # Puts count into a str var that has formating for display
+    # Puts count into a str var that has formatting for display
     count_display = "Time:", str(count), "s"
     countdown_clock = count
 
@@ -89,13 +85,13 @@ def start_timer(event):
     text_entry_TEXT.unbind("<Key>")
 
     do_start()
-
+        
 
 # Script To Check If The Timer Is Up
 def check_timer_script():
 
     global countdown_clock, text_entry_TEXT
-
+    
     if countdown_clock == 0:
 
         # Stops User From Typing
@@ -105,6 +101,13 @@ def check_timer_script():
 
         return
 
+    elif length_user == length_app and length_user > 1:
+
+        # Stops User From Typing
+        text_entry_TEXT.config(state=DISABLED)
+
+        ans_checking_script()
+
     else:
 
         pass
@@ -112,49 +115,88 @@ def check_timer_script():
 
 # calculate words per minute and accuracy
 def calculate_wpm_and_accuracy(time_taken, num_words):
-  # calculate words per minute
-  wpm = num_words / (time_taken / 60)
-  
-  # calculate accuracy
-  accuracy = num_words / (time_taken / 60)
-  
-  # return the results
-  return wpm, accuracy
+    # calculate words per minute
+    wpm = num_words / (time_taken / 60)
+
+    # calculate accuracy
+    accuracy = num_words / (time_taken / 60)
+
+    # return the results
+    return wpm, accuracy
 
 
 # Script To Check Users Answers
 def ans_checking_script():
-
     user_entered_text = text_entry_TEXT.get(1.0, END)
 
     # Checks If User Input Is Same As Printed Text
     if user_entered_text.strip() == displayTextSTR.strip():
-        
-        #Closes Main File Before Use
+
+        # Closes Main File Before Use
         currenText.close()
+
+        # ADD PASSED CODE HERE
+        print("You Passed")
 
         user_words_typed = len((user_entered_text.split()))
 
-        wpm, acc = calculate_wpm_and_accuracy(current_time_limit,user_words_typed)
-
-        # print the results
-        print("Words per minute:", wpm)
-        print("Accuracy:", acc)
+        calculate_wpm_and_accuracy()
 
         pass
 
     else:
 
-        #Closes Main File Before Use
+        # Closes Main File Before Use
         currenText.close()
+
+        # ADD FAILED CODE HERE
+        print("You Failed. Try Again ?")
 
         user_words_typed = len((user_entered_text.split()))
 
-        wpm, acc = calculate_wpm_and_accuracy(current_time_limit,user_words_typed)
+        pass
 
-        # print the results
-        print("Words per minute:", wpm)
-        print("Accuracy:", acc)
+length_user = int()
+def get_user_text_length() -> int:
+
+    global length_user
+
+    _ = False
+
+    while _ == False:
+
+        text_entry_TEXT.after(200, None)
+
+        # Get the index of the last character in the widget
+        end_index = text_entry_TEXT.index(END)
+        # Get the index of the first character in the widget
+        start_index = text_entry_TEXT.index("1.0")
+        # Subtract the start index from the end index to get the length
+        length_user = int(end_index.split(".")[0]) - int(start_index.split(".")[0])
+
+    else:
+
+        pass
+
+length_app = int()
+def get_app_text_length() -> int:
+
+    global length_app
+
+    _ = False
+
+    while _ == False:
+
+        app.after(200, None)
+
+        # Get the index of the last character in the widget
+        end_index = text_display_TEXT.index(END)
+        # Get the index of the first character in the widget
+        start_index = text_display_TEXT.index("1.0")
+        # Subtract the start index from the end index to get the length
+        length_app = int(end_index.split(".")[0]) - int(start_index.split(".")[0])
+
+    else:
 
         pass
 
@@ -164,6 +206,16 @@ def do_start():
     worker = threading.Thread(target=check_timer_script)
     worker.start()
 
+def do_start_app_text():
+
+    worker2 = threading.Thread(target=get_app_text_length)
+    worker2.start()
+
+def do_start_user_text():
+
+    worker3 = threading.Thread(target=get_user_text_length)
+    worker3.start()
+
 
 # Tkinter Boiler Plate
 app = Tk()
@@ -172,7 +224,7 @@ app = Tk()
 widthSCREEN = app.winfo_screenwidth()
 heightSCREEN = app.winfo_screenheight()
 
-# Gives Dimenstions to Window
+# Gives Dimensions to Window
 app.geometry("%dx%d" % (widthSCREEN, heightSCREEN))
 
 # Gives Title To Window
@@ -186,10 +238,10 @@ ctypes.windll.shcore.SetProcessDpiAwareness(True)
 
 # Gives Application An Icon
 appIcon = PhotoImage(
-    file="C:/Users/daksh/OneDrive/Desktop/Typing go burrr/IA - Typing go burrr/Application_Desktop/Tkinter Version/TGB_Icon.png"
+    file="C:/Users/daksh/OneDrive/Desktop/TypingGOBurrr/TGB_Git/IA - Typing go burrr/Application_Desktop/Tkinter "
+         "Version/TGB_Icon.png "
 )
 app.iconphoto(True, appIcon)
-
 
 # Frame for the title of the app
 titleFrame = Frame(
@@ -203,7 +255,6 @@ titleFrame = Frame(
 # Adds Frame Into Main Loop
 titleFrame.pack(anchor=NW, side=TOP, fill=X)
 
-
 # First Section Of The Title | 'typing'
 titleLabel1 = Label(
     master=titleFrame,
@@ -214,7 +265,6 @@ titleLabel1 = Label(
 )
 # Adds Label Into Main Loop
 titleLabel1.pack(side=LEFT, padx=10, pady=10)
-
 
 # Second Section Of The Title | 'Go'
 titleLabel2 = Label(
@@ -227,7 +277,6 @@ titleLabel2 = Label(
 # Adds Label Into Main Loop
 titleLabel2.pack(side=LEFT, pady=10)
 
-
 # Third Section Of The Title | 'Burrr'
 titleLabel3 = Label(
     master=titleFrame,
@@ -238,26 +287,6 @@ titleLabel3 = Label(
 )
 # Adds Label Into Main Loop
 titleLabel3.pack(side=LEFT, pady=10)
-
-
-# Adds Button To Change Time Limit On Test
-timer_limit_changer = Button(
-    master=titleFrame,
-    text=current_time_limit_str,
-    command=change_time_limit,
-    width=15,
-    height=1,
-    font=("Arial", 20, "bold", "italic"),
-    fg="#EEEEEE",
-    bg="#222831",
-    relief=FLAT,
-    borderwidth=0,
-    activebackground="#222831",
-    activeforeground="#7971EA",
-)
-# Adds Button Into Main Loop
-timer_limit_changer.pack(anchor=E, side=RIGHT)
-
 
 # Adds Frame For User And Application Display
 text_display_Frame = Frame(master=app, width=1000, height=200, bg="#222831")
@@ -288,7 +317,6 @@ time_display_TEXT.config(text=current_time_limit_str)
 # Makes The Text Box Read-Only
 time_display_TEXT.config(state=DISABLED)
 
-
 # Makes Text Box That The Application Can Display Text In During The Test
 text_display_TEXT = Text(
     master=text_display_Frame,
@@ -304,17 +332,16 @@ text_display_TEXT = Text(
 )
 # Adds The Text Box Into Main Loop
 text_display_TEXT.pack()
-
-
+# Makes Init State To Be Non-interactive
 text_display_TEXT.config(state=DISABLED)
 
-
+# Main Text Generation Script
 # ---------------------------------------------------------------------------------------------------------------
 
 # Test Dependent Variables
 
 # Holds Word List Location
-worldList = "C:/Users/daksh/OneDrive/Desktop/Typing go burrr/IA - Typing go burrr/Word List/Master_EN_Word_List.txt"
+worldList = "C:/Users/daksh/OneDrive/Desktop/TypingGOBurrr/TGB_Git/IA - Typing go burrr/Word List/Loki_Word_List_EN.txt"
 
 # Reads Word List Into A Variable
 currenText = open(worldList, "r")
@@ -322,18 +349,18 @@ currenText = open(worldList, "r")
 # Reads The Line Number From Text
 lines = currenText.readlines()
 
-# Pre-delclears the variabe before generation
+# Declarers the variable before generation
 displayText = []
 
 # makes loop for adding words into the displayText VAR
-for i in range(0, 50):
+for i in range(0, 10):
     if i != 10:
-        randomLineGen = random.randint(0, 2000)
+        randomLineGen = random.randint(0, 996)
         displayText.append(lines[randomLineGen])
     else:
         break
 
-# Removes  default array boiler plate
+# Removes  default array boilerplate
 displayText = "".join([str(elem) for elem in displayText])
 
 # Stores display data into a string only var
@@ -344,10 +371,8 @@ text_display_TEXT.config(state=NORMAL)
 text_display_TEXT.insert(1.0, displayTextSTR)
 text_display_TEXT.config(state=DISABLED)
 
-
 # Finds Word Length Of Text
 word_count = len(displayTextSTR.split())
-
 
 # --------------------------------------------------------------------------------------------------------------
 
@@ -368,13 +393,13 @@ text_entry_TEXT = Text(
     insertwidth=5,
     insertofftime=0,
     insertborderwidth=0,
+    takefocus=1
 )
 # Adds Box Into Main Loop
 text_entry_TEXT.pack()
 
-# Binds Entry Box To Have Fuction To Start Test
+# Binds Entry Box To Have Function To Start Test
 text_entry_TEXT.bind("<Key>", start_timer)
-
 
 # Frame For Buttons On The Bottom
 bottom_Frame = Frame(
@@ -388,6 +413,23 @@ bottom_Frame = Frame(
 # Adds Frame Into Main Loop
 bottom_Frame.pack(side=BOTTOM, fill=X)
 
+# Adds Button To Change Time Limit On Test
+timer_limit_changer = Button(
+    master=bottom_Frame,
+    text=current_time_limit_str,
+    command=change_time_limit,
+    width=15,
+    height=1,
+    font=("Arial", 20, "bold", "italic"),
+    fg="#EEEEEE",
+    bg="#222831",
+    relief=FLAT,
+    borderwidth=0,
+    activebackground="#222831",
+    activeforeground="#7971EA",
+)
+# Adds Button Into Main Loop
+timer_limit_changer.pack(anchor=W, side=LEFT, pady=5)
 
 # Allows The Application To Be Run If The File Has Property Of '__main__'
 if __name__ == "__main__":

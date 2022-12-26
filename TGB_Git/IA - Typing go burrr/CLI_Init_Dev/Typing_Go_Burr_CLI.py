@@ -14,7 +14,7 @@ import string
 import time 
 
 # Holds Word List Location
-worldList = 'C:/Users/daksh/OneDrive/Desktop/Typing go burrr/IA - Typing go burrr/Word List/Master_EN_Word_List.txt'
+worldList = 'C:/Users/daksh/OneDrive/Desktop/TypingGOBurrr/TGB_Git/IA - Typing go burrr/Word List/Loki_Word_List_EN.txt'
 
 # Reads Word List Into A Variable 
 currenText = open(worldList,"r")
@@ -28,7 +28,7 @@ displayText = []
 # makes loop for adding words into the displayText VAR
 for i in range (0,10):
     if i != 10:
-        randomLineGen = random.randint(0, 2000)
+        randomLineGen = random.randint(0, 977)
         displayText.append(lines[randomLineGen])
     else:
         break
