@@ -10,7 +10,7 @@ def TextAcc(plyr_text, displayTextSTR, word_count):
     textACC = len(set(plyr_text.split()) & set(displayTextSTR.split()))
     textACC = (textACC / word_count) * 100
 
-    return textACC
+    return int(textACC)
 
 
 def TimeTaken(time_STOP, time_START):
@@ -35,14 +35,16 @@ def WordsPerMinute(time_STOP, time_START, word_count, timeTaken):
 # Holds Word List Location
 worldList = "TGB_Git/IA - Typing go burrr/CLI_Init_Dev/Loki_Word_List_EN.txt"
 
-# Reads Word List Into A Variable
-currenText = open(worldList, "r")
 
-# Reads The Line Number From Text
-lines = currenText.readlines()
+with open(worldList, "r"):
+    # Reads Word List Into A Variable
+    currenText = open(worldList, "r")
 
-# Pre-delclears the variabe before generation
-displayText = []
+    # Reads The Line Number From Text
+    lines = currenText.readlines()
+
+    # Pre-delclears the variabe before generation
+    displayText = []
 
 # makes loop for adding words into the displayText VAR
 for i in range(0, 10):
@@ -80,8 +82,8 @@ if plyr_text.strip() == displayTextSTR.strip():
     # Print Result Message
     print("\nYou Did It ! Wanna Do Another ?\n")
 
-    print("Accuracy:", TextAcc(plyr_text, displayTextSTR, word_count))
-    print("Time Taken:", TimeTaken(time_STOP, time_START))
+    print("Accuracy:", TextAcc(plyr_text, displayTextSTR, word_count), "%")
+    print("Time Taken:", TimeTaken(time_STOP, time_START), "s")
     print("Words Per Minute:", WordsPerMinute(time_STOP, time_START, word_count, TimeTaken(time_STOP, time_START)))
 
 else:
@@ -89,9 +91,6 @@ else:
     # Print Result Message
     print("\nNice Try! Some Mistakes There Though, Wanna Do Another ?\n")
 
-    print("Accuracy:", TextAcc(plyr_text, displayTextSTR, word_count))
-    print("Time Taken:", TimeTaken(time_STOP, time_START))
+    print("Accuracy:", TextAcc(plyr_text, displayTextSTR, word_count), "%")
+    print("Time Taken:", TimeTaken(time_STOP, time_START), "s")
     print("Words Per Minute:", WordsPerMinute(time_STOP, time_START, word_count, TimeTaken(time_STOP, time_START)))
-
-# Closes Main File After Use
-currenText.close()
