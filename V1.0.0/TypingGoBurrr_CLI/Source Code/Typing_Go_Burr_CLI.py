@@ -33,7 +33,7 @@ def WordsPerMinute(time_STOP, time_START, word_count, timeTaken):
 
 
 # Holds Word List Location
-worldList = "TGB_Git/IA - Typing go burrr/CLI_Init_Dev/Loki_Word_List_EN.txt"
+worldList = "V1.0.0/TypingGoBurrr_CLI/Source Code/Loki_Word_List_EN.txt"
 
 
 with open(worldList, "r"):
@@ -94,3 +94,4 @@ else:
     print("Accuracy:", TextAcc(plyr_text, displayTextSTR, word_count), "%")
     print("Time Taken:", TimeTaken(time_STOP, time_START), "s")
     print("Words Per Minute:", WordsPerMinute(time_STOP, time_START, word_count, TimeTaken(time_STOP, time_START)))
+    
