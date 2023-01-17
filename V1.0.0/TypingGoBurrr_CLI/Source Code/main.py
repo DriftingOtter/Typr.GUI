@@ -3,59 +3,6 @@ import ctypes
 import random
 import string
 import time
-from tkinter import *
-import ctypes
-
-specialChar_mapping = {
-    "~": "`",
-    "!": "1",
-    "@": "2",
-    "#": "3",
-    "$": "4",
-    "%": "5",
-    "^": "6",
-    "&": "7",
-    "*": "8",
-    "(": "9",
-    ")": "0",
-    "_": "-",
-    "+": "=",
-    "{": "[",
-    "}": "]",
-    "|": "\\",
-    ":": ";",
-    '''"''': "'",
-    "<": ",",
-    ">": ".",
-    "?": "/",
-    "A": "a",
-    "B": "b",
-    "C": "c",
-    "D": "d",
-    "E": "e",
-    "F": "f",
-    "G": "g",
-    "H": "h",
-    "I": "i",
-    "J": "j",
-    "K": "k",
-    "L": "l",
-    "M": "m",
-    "N": "n",
-    "O": "o",
-    "P": "p",
-    "Q": "q",
-    "R": "r",
-    "S": "s",
-    "T": "t",
-    "U": "u",
-    "V": "v",
-    "W": "w",
-    "X": "x",
-    "Y": "y",
-    "Z": "z",
-}
-
 
 def refactorSpecialChar(text):
 
@@ -64,6 +11,7 @@ def refactorSpecialChar(text):
     # Look up the corresponding character in the char_mapping dictionary
     # If the text is not in the mapping, use the original text
     return specialChar_mapping.get(text, text)
+
 
 def TextAcc(plyr_text, displayText, word_count):
 
@@ -103,6 +51,7 @@ def key_press(event):
                 ):
                     btn["relief"] = "sunken"
 
+
 def key_release(event):
     for row in (key_row1, key_row2, key_row3, key_row4, key_row5):
         for btn in row.winfo_children():
@@ -112,7 +61,8 @@ def key_release(event):
                 ):
                     btn["relief"] = "raised"
 
-#------------------------------------------------------------------------------------------
+
+# ------------------------------------------------------------------------------------------
 
 # Holds Word List Location
 worldList = "V1.0.0/TypingGoBurrr_CLI/Source Code/Loki_Word_List_EN.txt"
@@ -151,68 +101,71 @@ for character in word:
 else:
     pass
 
-#----------------------------------------------------------------------------------------------
+# ----------------------------------------------------------------------------------------------
 
 root = Tk()
-root.geometry("1920x1080")
+root.geometry(f"{root.winfo_screenwidth()}x{root.winfo_screenheight()}")
 root.title("Typing Go Burrr")
 root.config(bg="#1A1A1A")
 ctypes.windll.shcore.SetProcessDpiAwareness(True)
 
 
-# title = Label(master=root, text="Typing Go Burrr", font=('Arial', 50, 'italic'))
-# title.pack(anchor=W, side=TOP)
+title = Label(
+    master=root,
+    text="Typing Go Burrr",
+    font=("Rubik ExtraBold Italic", 50),
+    bg="#1A1A1A",
+    fg="#ffffff",
+)
+title.pack(anchor=W, side=TOP)
 
-GameInputAndOutputFrame = Frame(master=root, bg=root['bg'])
-GameInputAndOutputFrame.pack(anchor= CENTER, pady=100)
+gameInputAndOutputFrame = Frame(master=root, bg=root["bg"])
+gameInputAndOutputFrame.pack(anchor="center")
 
-challengeText = Label(master=GameInputAndOutputFrame, text=displayText, font=('Arial', 40), bg="#1A1A1A", fg="#ffffff")
+challengeText = Label(
+    master=gameInputAndOutputFrame,
+    text=displayText,
+    font=("Rubik Bold", 40),
+    bg="#1A1A1A",
+    fg="#ffffff",
+    width=root.winfo_screenwidth() - 100,
+)
 challengeText.pack(anchor=CENTER)
 
-usrEntryBox = Text(master=GameInputAndOutputFrame, font=('Arial', 40), width=50, height=1, bg="#1A1A1A", fg="#ffffff", relief=FLAT)
+usrEntryBox = Text(
+    master=gameInputAndOutputFrame,
+    font=("Rubik Bold", 40),
+    width=50,
+    height=1,
+    bg="#1A1A1A",
+    fg="#A0C3D2",
+    relief=FLAT,
+)
 usrEntryBox.pack(anchor=CENTER)
-usrEntryBox.config()
+usrEntryBox.config(insertbackground="#ffffff", insertofftime=0, insertwidth=5)
+
+# TODO:- make special character default to there original non-special value for check
 
 # Makes frame that acts as a 'case' for the key to be displayed in
 keyboardCase = Frame(
     master=root, borderwidth=40, bg="#050505", height=125, width=250, relief=GROOVE
 )
-keyboardCase.pack()
+# keyboardCase.pack()
 
 # indivisual rows for key to be placed in
-key_row1 = Frame(
-    master=keyboardCase,
-    width=125,
-    takefocus=0
-)
+key_row1 = Frame(master=keyboardCase, width=125, takefocus=0)
 key_row1.pack(side=TOP)
 
-key_row2 = Frame(
-    master=keyboardCase,
-    width=125,
-    takefocus=0
-)
+key_row2 = Frame(master=keyboardCase, width=125, takefocus=0)
 key_row2.pack(anchor=CENTER)
 
-key_row3 = Frame(
-    master=keyboardCase,
-    width=125,
-    takefocus=0
-)
+key_row3 = Frame(master=keyboardCase, width=125, takefocus=0)
 key_row3.pack(anchor=CENTER)
 
-key_row4 = Frame(
-    master=keyboardCase,
-    width=125,
-    takefocus=0
-)
+key_row4 = Frame(master=keyboardCase, width=125, takefocus=0)
 key_row4.pack(anchor=CENTER)
 
-key_row5 = Frame(
-    master=keyboardCase,
-    width=125,
-    takefocus=0
-)
+key_row5 = Frame(master=keyboardCase, width=125, takefocus=0)
 key_row5.pack(side=BOTTOM)
 
 
@@ -307,14 +260,18 @@ for i, key_row in enumerate((key_row1, key_row2, key_row3, key_row4, key_row5)):
             height=3,
             font=("Rubik Bold", 10),
             bg="#c4c1b9",
-            takefocus=0
+            takefocus=0,
         )
         btn.pack(side="left")
 
 
-
 root.bind("<Key>", key_press)
 root.bind("<KeyRelease>", key_release)
-
+root.bind(
+    "<Configure>",
+    lambda event: gameInputAndOutputFrame.place_configure(
+        relx=0.5, rely=0.5, anchor="center"
+    ),
+)
 if __name__ == "__main__":
     root.mainloop()
