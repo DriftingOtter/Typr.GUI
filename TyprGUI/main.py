@@ -52,6 +52,7 @@ def key_press(event):
                     btn["relief"] = "sunken"
 
 def key_release(event):
+
     for row in (key_row1, key_row2, key_row3, key_row4, key_row5):
         for btn in row.winfo_children():
             if isinstance(btn, Button):
@@ -60,20 +61,41 @@ def key_release(event):
                 ):
                     btn["relief"] = "raised"
 
-start_time = time.time()
-def update_label():
+def countdown(timercount):
 
-    global root, displayTimer, start_time
+    # change text in label        
+    displayTimer['text'] = timercount
 
-    elapsed_time = time.time() - start_time
-    displayTimer.config(text="{:.2f}".format(elapsed_time))
-    root.after(10, displayTimer)
+    if timercount > 0:
+        # call countdown again after 1000ms (1s)
+        root.after(1000, countdown, timercount-1)
 
+# count down 'FLAG' vaiable
+countdown_started = False
+
+def is_typing(event):
+
+    global countdown_started
+
+    # check if the user is typing in the Text widget
+    if event.widget == usrEntryBox:
+        
+        if not countdown_started:
+            startcountdown()
+            countdown_started = True
+    
+    else: 
+
+        pass    
+
+def startcountdown():
+
+    countdown(10)
 
 #------------------------------------------------------------------------------------------
 
 # Holds Word List Location
-worldList = "Loki_Word_List_EN.txt"
+worldList = "TyprGUI/Loki_Word_List_EN.txt"
 
 with open(worldList, "r") as currenText:
     # Reads The Line Number From Text
@@ -101,7 +123,6 @@ word_count = len(displayText.split())
 
 # Pre-delclears the variabe before generation
 internalText = []
-
 word = displayText.strip()
 
 for character in word:
@@ -117,27 +138,17 @@ root.title("Typr")
 root.config(bg="#1A1A1A")
 ctypes.windll.shcore.SetProcessDpiAwareness(True)
 
-
-title = Label(
-    master=root, 
-    text="Typr", 
-    font=('Rubik ExtraBold Italic', 80), 
-    bg="#1A1A1A", 
-    fg="#7971EA"
-)
-title.pack(anchor=W, side=TOP)
-
 gameInputAndOutputFrame = Frame(master=root, bg=root['bg'], width=root.winfo_screenwidth()-100)
 gameInputAndOutputFrame.pack(anchor="center", expand=False, fill=None)
 
 displayTimer =  Label(
     master=gameInputAndOutputFrame,
-    text="0.00",
+    text="0s",
     font=('Rubik ExtraBold Italic', 30), 
     bg="#1A1A1A", 
     fg="#ffffff"
 )
-displayTimer.pack()
+displayTimer.pack(pady=10)
 
 challengeText = Text(
     master=gameInputAndOutputFrame,  
@@ -162,6 +173,7 @@ usrEntryBox = Text(
     bg=root['bg'], 
     fg="#ffffff", 
     relief=FLAT,
+    takefocus=0,
     insertbackground="#ffffff", 
     insertofftime=0, 
     insertwidth=5
@@ -311,10 +323,12 @@ for i, key_row in enumerate((key_row1, key_row2, key_row3, key_row4, key_row5)):
         )
         btn.pack(side="left")
 
-
+# Binding For Applications
 root.bind("<Key>", key_press)
 root.bind("<KeyRelease>", key_release)
 root.bind("<Configure>", lambda event: gameInputAndOutputFrame.place_configure(relx=.5, rely=.5, anchor="center"))
-update_label()
+
+usrEntryBox.bind("<KeyPress>", is_typing)
+
 if __name__ == "__main__":
     root.mainloop()
