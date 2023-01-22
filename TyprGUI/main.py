@@ -97,17 +97,13 @@ def check_letter(event):
 
     global internalText, usrEntryBox, intcounter
 
-    print(intcounter)
-
     if not internalText or not usrEntryBox:
 
         raise ValueError("internalText or usrEntryBox is not defined!")
 
     last_letter = usrEntryBox.get("end-2c", "end-1c")
-    print(last_letter)
 
     correct_letter = internalText[intcounter]
-    print(correct_letter)
 
     usrEntryBox.tag_config("ErrorColor", background='red')
 
@@ -118,7 +114,7 @@ def check_letter(event):
     elif last_letter == correct_letter:
 
         intcounter = intcounter + 1
-        usrEntryBox.tag_remove("ErrorColor", "1.0", "end-1c")
+        usrEntryBox.tag_remove("ErrorColor", "end-1c")
 
     else:
 
@@ -127,7 +123,7 @@ def check_letter(event):
 #------------------------------------------------------------------------------------------
 
 # Holds Word List Location
-worldList = "C:/Users/daksh/OneDrive/Desktop/Typr/TyprGUI/Loki_Word_List_EN.txt"
+worldList = "C:/Users/daksh/OneDrive/Desktop/Typr/WordLists/Loki_Word_List_EN.txt"
 
 with open(worldList, "r") as currenText:
     # Reads The Line Number From Text
