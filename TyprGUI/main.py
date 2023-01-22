@@ -111,8 +111,6 @@ def check_letter(event):
 
     usrEntryBox.tag_config("ErrorColor", background='red')
 
-    # TODO:- FIX HOW TEXT ERROR TAG NOT WORKING
-
     if last_letter != correct_letter:
 
         usrEntryBox.tag_add("ErrorColor", "end-2c", "end-1c")
