@@ -2,7 +2,7 @@ from tkinter import *
 import ctypes
 
 root = Tk()
-root.geometry(f"{root.winfo_screenwidth()}x{root.winfo_screenheight()}")
+root.geometry("1331x600")
 root.title("On Screen Keyboard - Typr")
 root.config(bg="#1A1A1A")
 ctypes.windll.shcore.SetProcessDpiAwareness(True)
@@ -44,7 +44,9 @@ keyboardCase = Frame(
     width=250, 
     relief=GROOVE
 )
-# keyboardCase.pack()
+keyboardCase.pack(anchor=CENTER, pady=50)
+print(keyboardCase.winfo_screenheight())
+print(keyboardCase.winfo_screenwidth())
 
 # indivisual rows for key to be placed in
 key_row1 = Frame(
