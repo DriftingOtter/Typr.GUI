@@ -2,37 +2,18 @@ from tkinter import *
 import ctypes
 import random
 import string
-import time
 
-
-def TextAcc(plyr_text, displayText, word_count):
-
-    # Calculates Text Acc
-    textACC = len(set(plyr_text.split()) & set(displayText.split()))
-    textACC = (textACC / word_count) * 100
-
-    return int(textACC)
-
-
-def TimeTaken(time_STOP, time_START):
-
-    # Gather Time Taken
-    time_taken = int(time_STOP - time_START)
-
-    return time_taken
-
-
-def WordsPerMinute(time_STOP, time_START, word_count, timeTaken):
-
-    # Calculates Time Taken
-    timeTaken = time_STOP - time_START
-
-    # Calculates Words Per Minute
-    wordsPM = int((word_count / timeTaken) * 100)
-
-    return wordsPM
+# Variable States For Program
+time_Limit = 10 # (Default State: 10)
+internalTXTcounter = 0 # (Default State: 0)
+keys_pressed = 0 # (Default State: 0)
+timr_state = False # (Default State: False)
+running = False # (Default State: False)
+usr_error_Count = 0 # (Default State: 0)
 
 def countdown(timercount):
+
+    global usrEntryBox
 
     # change text in label        
     displayTimer['text'] = timercount
@@ -41,49 +22,140 @@ def countdown(timercount):
         # call countdown again after 1000ms (1s)
         root.after(1000, countdown, timercount-1)
 
-# count down 'FLAG' vaiable
-countdown_started = False
-
+    if timercount == 0:
+        usrEntryBox.config(state=DISABLED)
+        gross_WPM()
+        netWordsPerMinute()
+ 
 def is_typing(event):
 
-    global countdown_started
+    global time_Limit, timr_state
 
     # check if the user is typing in the Text widget
-    if event.widget == usrEntryBox:
+    if event.widget == usrEntryBox and timr_state == False:
         
-        if not countdown_started:
-            startcountdown()
-            countdown_started = True
-    
-    else: 
+        countdown(time_Limit)
+        timr_state = True
 
-        pass    
-
-def startcountdown():
-
-    countdown(10)
-
-
-internalTXTcounter = 0
 def check_letter(event):
 
-    global internalText, usrEntryBox, internalTXTcounter
+    global internalText, usrEntryBox, internalTXTcounter, running, usr_error_Count
+
+    if running:
+        return
+
+    running = True
+
+    usrEntryBox.unbind("<KeyRelease>", check_letter)
 
     last_letter = usrEntryBox.get("end-2c", "end-1c")
 
-    usrEntryBox.tag_config("ErrorColor", background='red')
+    usrEntryBox.tag_config("ErrorColor", background="red")
 
     if event.keysym == "BackSpace":
         if internalTXTcounter > 0:
             internalTXTcounter -= 1
             usrEntryBox.tag_remove("ErrorColor", "end-2c", "end-1c")
+
+            if usr_error_Count >= 0:
+                usr_error_Count -= 1
     else:
         if last_letter != internalText[internalTXTcounter]:
+            internalTXTcounter += 1
             usrEntryBox.tag_add("ErrorColor", "end-2c", "end-1c")
+            usr_error_Count += 1
         else:
             internalTXTcounter += 1
             usrEntryBox.tag_remove("ErrorColor", "end-2c", "end-1c")
 
+    usrEntryBox.bind("<KeyRelease>", check_letter)
+    running = False
+
+def key_press_counter(event):
+
+    global keys_pressed, usrEntryBox
+
+    last_char = usrEntryBox.get("end-2c", "end-1c")
+
+    if last_char and last_char.isalpha():
+
+        keys_pressed += 1
+
+def gross_WPM():
+
+    global time_Limit, word_count, usrEntryBox, keys_pressed
+
+    grossWPM = round(((keys_pressed / 5) / (time_Limit/60)))
+
+    print("Gross Words Per Minute:", grossWPM)
+
+    return grossWPM
+
+def netWordsPerMinute():
+
+    global time_Limit, word_count, usrEntryBox, keys_pressed, usr_error_Count
+
+    grossWPM = round(((keys_pressed / 5) / (time_Limit/60)))
+
+    error_Rate = usr_error_Count / (time_Limit/60)
+
+    netWPM = round(grossWPM - error_Rate)
+
+    print("Net Words Per Minute:",netWPM)
+
+    return netWPM
+
+def results_Popup():
+
+    # Create the toplevel window
+    top_level = Toplevel(master=root)
+    top_level.geometry("500x1000")
+    top_level.config(bg="#1a1a1a")
+    top_level.title("Results")
+
+    # Remove the status bar
+    top_level.overrideredirect(True)
+
+    # Create the title label
+    title_label = Label(
+        master= top_level, 
+        text="RESULTS", 
+        font=("Rubik Bold",50), 
+        bg="#1a1a1a", 
+        fg="white", 
+        anchor="center"
+    )
+    title_label.pack(anchor="center")
+
+    # Set the value for the grossWPM variable
+    grossWPM = 150
+
+    # Create the grossWPM label
+    wpm_label = Label(
+        master=top_level, 
+        text=f"Gross WPM: {grossWPM}", 
+        font=("Rubik",15), 
+        bg="#1a1a1a", 
+        fg="white", 
+        anchor="center"
+    )
+    wpm_label.pack(anchor="center", pady=10)
+
+    # Set the value for the netWPM variable
+    netWPM = 140
+
+    # Create the netWPM label
+    net_wpm_label = Label(
+        master=top_level, 
+        text=f"Net WPM: {netWPM}", 
+        font=("Rubik",15), 
+        bg="#1a1a1a", 
+        fg="white", 
+        anchor="center"
+    )
+    net_wpm_label.pack(anchor="center")
+
+    
 
 #------------------------------------------------------------------------------------------
 
@@ -93,7 +165,6 @@ worldList = "C:/Users/daksh/OneDrive/Desktop/Typr/WordLists/Loki_Word_List_EN.tx
 with open(worldList, "r") as currenText:
     # Reads The Line Number From Text
     lines = currenText.readlines()
-
 
 # Pre-delclears the variabe before generation
 displayText = []
@@ -135,11 +206,12 @@ ctypes.windll.shcore.SetProcessDpiAwareness(True)
 
 gameInputAndOutputFrame = Frame(master=root, bg=root['bg'], width=root.winfo_screenwidth()-100)
 gameInputAndOutputFrame.pack(anchor="center", expand=False, fill=None)
+gameInputAndOutputFrame.place_configure(relx=.5, rely=.5, anchor="center")
 
 displayTimer =  Label(
     master=gameInputAndOutputFrame,
-    text="0s",
-    font=('Rubik ExtraBold Italic', 30), 
+    text="Please Begin Typing...",
+    font=('Rubik ExtraBold Italic', 80), 
     bg="#1A1A1A", 
     fg="#ffffff"
 )
@@ -147,7 +219,7 @@ displayTimer.pack(pady=10)
 
 challengeText = Text(
     master=gameInputAndOutputFrame,  
-    font=('Rubik Bold', 40),
+    font=('Rubik', 40),
     width=50,
     height=1, 
     bg=root['bg'], 
@@ -162,8 +234,8 @@ challengeText.config(state=DISABLED)
 
 usrEntryBox = Text(
     master=gameInputAndOutputFrame, 
-    font=('Rubik Bold', 40), 
-    width=50,
+    font=('Rubik', 40), 
+    width=challengeText['width'],
     height=1, 
     bg=root['bg'], 
     fg="#ffffff", 
@@ -181,6 +253,8 @@ root.bind("<Configure>", lambda event: gameInputAndOutputFrame.place_configure(r
 
 usrEntryBox.bind("<KeyPress>", is_typing)
 usrEntryBox.bind("<KeyRelease>", check_letter)
+usrEntryBox.bind("<KeyRelease>", key_press_counter)
+
 
 if __name__ == "__main__":
     root.mainloop()
