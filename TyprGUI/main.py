@@ -1,5 +1,4 @@
 from tkinter import *
-import ctypes
 import random
 import string
 
@@ -70,6 +69,7 @@ def check_letter(event):
 
     usrEntryBox.bind("<KeyRelease>", check_letter)
     running = False
+
 
 def key_press_counter(event):
 
@@ -160,13 +160,13 @@ def results_Popup():
 #------------------------------------------------------------------------------------------
 
 # Holds Word List Location
-worldList = "C:/Users/daksh/OneDrive/Desktop/Typr/WordLists/Loki_Word_List_EN.txt"
+worldList = "/home/otter/Documents/Typr/WordLists/Loki_Word_List_EN.txt"
 
 with open(worldList, "r") as currenText:
     # Reads The Line Number From Text
     lines = currenText.readlines()
 
-# Pre-delclears the variabe before generation
+# Pre-declears the variabe before generation
 displayText = []
 
 # makes loop for adding words into the displayText VAR
@@ -202,10 +202,9 @@ root = Tk()
 root.geometry(f"{root.winfo_screenwidth()}x{root.winfo_screenheight()}")
 root.title("Typr")
 root.config(bg="#1A1A1A")
-ctypes.windll.shcore.SetProcessDpiAwareness(True)
 
 gameInputAndOutputFrame = Frame(master=root, bg=root['bg'], width=root.winfo_screenwidth()-100)
-gameInputAndOutputFrame.pack(anchor="center", expand=False, fill=None)
+gameInputAndOutputFrame.pack(anchor="center", expand=False, fill='none')
 gameInputAndOutputFrame.place_configure(relx=.5, rely=.5, anchor="center")
 
 displayTimer =  Label(
