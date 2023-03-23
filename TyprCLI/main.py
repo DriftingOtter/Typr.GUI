@@ -142,9 +142,10 @@ while True:
 
     tryagain = input(Fore.BLUE + "\nWanna Another Try ? (y/n): ")
 
-    if tryagain.lower() != 'y':
+    if tryagain.lower() == 'n':   
         break
     else:
         pass
+        
 
 
