@@ -2,6 +2,7 @@
 import random
 import string
 import time
+import os
 from colorama import Fore, Back, Style
 from colorama import init
 
@@ -123,19 +124,20 @@ def checkPlyrScore():
     else:
 
         # Print Result Message
-        print(Fore.RED + "\nNice Try! Some Mistakes There Though, Wanna Do Another ?\n")
+        print(Fore.RED + "\nNice Try! Some Mistakes There Though, Wanna Do Another ?]\n")
 
 
-        print(Fore.GREEN + "Accuracy:", TextAcc(plyr_text, displayText, word_count), "%")
-        print(Fore.YELLOW + "Time Taken:", TimeTaken(time_STOP, time_START), "s")
-        print(Fore.MAGENTA + "Words Per Minute:", 
-              WordsPerMinute(time_STOP, time_START, word_count, TimeTaken(time_STOP, time_START)))
+        print(Fore.GREEN + "[Accuracy:", TextAcc(plyr_text, displayText, word_count), "%]")
+        print(Fore.YELLOW + "[Time Taken:", TimeTaken(time_STOP, time_START), "s]")
+        print(Fore.MAGENTA + "[Words Per Minute:", 
+              WordsPerMinute(time_STOP, time_START, word_count, TimeTaken(time_STOP, time_START)),"]")
 
 
 
 
 while True:
 
+    os.system('clear')
     generateChallengeText()
     plyrStart()
     checkPlyrScore()
@@ -145,6 +147,8 @@ while True:
     if tryagain.lower() == 'n':   
         break
     else:
+        
+        os.system('clear')
         pass
         
 

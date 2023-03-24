@@ -1,9 +1,25 @@
+
+#  $$$$$$\    $$\               
+# $$  __$$\   $$ |              
+# $$ /  $$ |$$$$$$\    $$$$$$\  
+# $$ |  $$ |\_$$  _|  $$  __$$\ 
+# $$ |  $$ |  $$ |    $$ |  \__|
+# $$ |  $$ |  $$ |$$\ $$ |      
+#  $$$$$$  |  \$$$$  |$$ |      
+#  \______/    \____/ \__|      
+#
+# Computer Science HL IA 
+#
+# <3
+
+# Imports
 from tkinter import *
 import random
 import string
 
 # Variable States For Program
 time_Limit = 10 # (Default State: 10)
+timerCount = int() # (Default State: int() )
 internalTXTcounter = 0 # (Default State: 0)
 keys_pressed = 0 # (Default State: 0)
 timr_state = False # (Default State: False)
@@ -12,16 +28,19 @@ usr_error_Count = 0 # (Default State: 0)
 
 def countdown(timercount):
 
-    global usrEntryBox
+    global usrEntryBox, timerCount
 
     # change text in label        
-    displayTimer['text'] = timercount
+    displayTimer['text'] = timerCount
 
-    if timercount > 0:
+    if timerCount > 0:
+
+        earlyFinishCheck()
+
         # call countdown again after 1000ms (1s)
-        root.after(1000, countdown, timercount-1)
+        root.after(1000, countdown, timerCount-1)
 
-    if timercount == 0:
+    if timerCount == 0:
         usrEntryBox.config(state=DISABLED)
         gross_WPM()
         netWordsPerMinute()
@@ -70,6 +89,18 @@ def check_letter(event):
     usrEntryBox.bind("<KeyRelease>", check_letter)
     running = False
 
+def earlyFinishCheck():
+
+    global internalText, usrEntryBox, internalTXTcounter 
+    global displayText, timerCount
+
+    while timercount > 0:
+    
+        last_letter = usrEntryBox.get('end-2c', 'end-1c')
+
+        if event.sym == "Return" and last_letter.strip() == displayText[-1]:
+
+            timerCount = 0
 
 def key_press_counter(event):
 
