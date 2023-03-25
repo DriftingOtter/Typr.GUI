@@ -19,13 +19,16 @@ import string
 
 # Variable States For Program
 time_Limit = 10 # (Default State: 10)
-#timerCount = int() # (Default State: int() )
 internalTXTcounter = 0 # (Default State: 0)
 keys_pressed = 0 # (Default State: 0)
 timr_state = False # (Default State: False)
 running = False # (Default State: False)
 usr_error_Count = 0 # (Default State: 0)
-numOfWords = 1 # (Default State: int() )
+numOfWords = 5 # (Default State: int() )
+displayText = []
+internalText = []
+word_count = int()
+wordList = "/home/otter/Documents/Typr/WordLists/Loki_Word_List_EN.txt"
 
 def countdown():
 
@@ -41,10 +44,11 @@ def countdown():
         else:
             pass
 
-        # call countdown again after 1000ms (1s)
         if time_Limit > 0:
             time_Limit = time_Limit - 1
 
+        #TODO:Change Sleep Interval Based On Func Time Taken (AT END OF PROJECT)
+        # call countdown again after 1000ms (1s)
         root.after(1000, countdown)
 
     if time_Limit == 0:
@@ -64,7 +68,8 @@ def is_typing(event):
 
 def check_letter(event):
 
-    global internalText, usrEntryBox, internalTXTcounter, running, usr_error_Count
+    global internalText, usrEntryBox, internalTXTcounter 
+    global running, usr_error_Count
 
     if running:
         return
@@ -105,15 +110,12 @@ def earlyFinishCheck():
         last_letter = usrEntryBox.get("end-2c", "end-1c")
         usrTextLength = len(usrEntryBox.get("1.0", "end"))
 
-        print("last letter is: ", last_letter)
-        print("\nusrTextLength is: ", usrTextLength)
-        print("\nlast letter of displayText is: ", displayText[-2:])
-        print("\nlength of displayText is: ", len(displayText))
+        # TODO: fix function 
+        if usrTextLength == len(displayText):
 
-        if last_letter == displayText[-2:] or usrTextLength == len(displayText):
-            usrEntryBox.config(state=DISABLED)
-            print("hello")
-            time_Limit = 0
+            if last_letter.strip() == (displayText[-2:]).strip():
+                usrEntryBox.config(state=DISABLED)
+                time_Limit = 0
 
 def key_press_counter(event):
 
@@ -149,99 +151,41 @@ def netWordsPerMinute():
 
     return netWPM
 
-def results_Popup():
-
-    # Create the toplevel window
-    top_level = Toplevel(master=root)
-    top_level.geometry("500x1000")
-    top_level.config(bg="#1a1a1a")
-    top_level.title("Results")
-
-    # Remove the status bar
-    top_level.overrideredirect(True)
-
-    # Create the title label
-    title_label = Label(
-        master= top_level, 
-        text="RESULTS", 
-        font=("Rubik Bold",50), 
-        bg="#1a1a1a", 
-        fg="white", 
-        anchor="center"
-    )
-    title_label.pack(anchor="center")
-
-    # Set the value for the grossWPM variable
-    grossWPM = 150
-
-    # Create the grossWPM label
-    wpm_label = Label(
-        master=top_level, 
-        text=f"Gross WPM: {grossWPM}", 
-        font=("Rubik",15), 
-        bg="#1a1a1a", 
-        fg="white", 
-        anchor="center"
-    )
-    wpm_label.pack(anchor="center", pady=10)
-
-    # Set the value for the netWPM variable
-    netWPM = 140
-
-    # Create the netWPM label
-    net_wpm_label = Label(
-        master=top_level, 
-        text=f"Net WPM: {netWPM}", 
-        font=("Rubik",15), 
-        bg="#1a1a1a", 
-        fg="white", 
-        anchor="center"
-    )
-    net_wpm_label.pack(anchor="center")
-
+def generateChallengeText():
     
+    global wordList, displayText, internalText, word_count, usrEntryBox
+    
+    with open(wordList, "r") as currenText:
+        # Reads The Line Number From Text
+        lines = currenText.readlines()
 
-#------------------------------------------------------------------------------------------
+    # makes loop for adding words into the displayText VAR
+    for z in range(0, numOfWords):
+        if z != numOfWords:
+            randomLineGen = random.randint(0, 977)# the number of words in the word list
+            displayText.append(lines[randomLineGen])
+        else:
+            break
 
-# Holds Word List Location
-worldList = "/home/otter/Documents/Typr/WordLists/Loki_Word_List_EN.txt"
 
-with open(worldList, "r") as currenText:
-    # Reads The Line Number From Text
-    lines = currenText.readlines()
+    # Removes  default array boiler plate
+    displayText = "".join([str(elem) for elem in displayText])
 
-# Pre-declears the variabe before generation
-displayText = []
 
-# makes loop for adding words into the displayText VAR
-for z in range(0, numOfWords):
-    if z != numOfWords:
-        randomLineGen = random.randint(0, 977)  # the number of words in the word list
-        displayText.append(lines[randomLineGen])
+    # arranges the text into 1 line via removing enter spaces
+    displayText = displayText.translate({ord(c): " " for c in string.whitespace})
+
+
+    # Finds Word Length Of Text
+    word_count = len(displayText.split())
+    word = displayText.strip()
+
+    for character in word:
+        internalText.append(character)
     else:
-        break
+        pass
 
-
-# Removes  default array boiler plate
-displayText = "".join([str(elem) for elem in displayText])
-
-# arranges the text into 1 line via removing enter spaces
-displayText = displayText.translate({ord(c): " " for c in string.whitespace})
-
-
-# Finds Word Length Of Text
-word_count = len(displayText.split())
-
-# Pre-delclears the variabe before generation
-internalText = []
-word = displayText.strip()
-
-for character in word:
-    internalText.append(character)
-else:
-    pass
-
-#----------------------------------------------------------------------------------------------
+generateChallengeText()
 
 root = Tk()
 root.geometry(f"{root.winfo_screenwidth()}x{root.winfo_screenheight()}")
