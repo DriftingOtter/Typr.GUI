@@ -19,31 +19,38 @@ import string
 
 # Variable States For Program
 time_Limit = 10 # (Default State: 10)
-timerCount = int() # (Default State: int() )
+#timerCount = int() # (Default State: int() )
 internalTXTcounter = 0 # (Default State: 0)
 keys_pressed = 0 # (Default State: 0)
 timr_state = False # (Default State: False)
 running = False # (Default State: False)
 usr_error_Count = 0 # (Default State: 0)
+numOfWords = 1 # (Default State: int() )
 
-def countdown(timercount):
+def countdown():
 
-    global usrEntryBox, timerCount
+    global usrEntryBox, time_Limit
 
     # change text in label        
-    displayTimer['text'] = timerCount
+    displayTimer['text'] = time_Limit
 
-    if timerCount > 0:
+    if time_Limit > 0:
 
-        earlyFinishCheck()
+        if time_Limit > 0:
+            earlyFinishCheck()
+        else:
+            pass
 
         # call countdown again after 1000ms (1s)
-        root.after(1000, countdown, timerCount-1)
+        if time_Limit > 0:
+            time_Limit = time_Limit - 1
 
-    if timerCount == 0:
+        root.after(1000, countdown)
+
+    if time_Limit == 0:
         usrEntryBox.config(state=DISABLED)
-        gross_WPM()
-        netWordsPerMinute()
+        #gross_WPM()
+        #netWordsPerMinute()
  
 def is_typing(event):
 
@@ -52,7 +59,7 @@ def is_typing(event):
     # check if the user is typing in the Text widget
     if event.widget == usrEntryBox and timr_state == False:
         
-        countdown(time_Limit)
+        countdown()
         timr_state = True
 
 def check_letter(event):
@@ -91,16 +98,22 @@ def check_letter(event):
 
 def earlyFinishCheck():
 
-    global internalText, usrEntryBox, internalTXTcounter 
-    global displayText, timerCount
+    global usrEntryBox, displayText, timr_state, time_Limit
 
-    while timercount > 0:
-    
-        last_letter = usrEntryBox.get('end-2c', 'end-1c')
+    if timr_state == True:
 
-        if event.sym == "Return" and last_letter.strip() == displayText[-1]:
+        last_letter = usrEntryBox.get("end-2c", "end-1c")
+        usrTextLength = len(usrEntryBox.get("1.0", "end"))
 
-            timerCount = 0
+        print("last letter is: ", last_letter)
+        print("\nusrTextLength is: ", usrTextLength)
+        print("\nlast letter of displayText is: ", displayText[-2:])
+        print("\nlength of displayText is: ", len(displayText))
+
+        if last_letter == displayText[-2:] or usrTextLength == len(displayText):
+            usrEntryBox.config(state=DISABLED)
+            print("hello")
+            time_Limit = 0
 
 def key_press_counter(event):
 
@@ -201,8 +214,8 @@ with open(worldList, "r") as currenText:
 displayText = []
 
 # makes loop for adding words into the displayText VAR
-for z in range(0, 10):
-    if z != 10:
+for z in range(0, numOfWords):
+    if z != numOfWords:
         randomLineGen = random.randint(0, 977)  # the number of words in the word list
         displayText.append(lines[randomLineGen])
     else:
@@ -214,6 +227,7 @@ displayText = "".join([str(elem) for elem in displayText])
 
 # arranges the text into 1 line via removing enter spaces
 displayText = displayText.translate({ord(c): " " for c in string.whitespace})
+
 
 # Finds Word Length Of Text
 word_count = len(displayText.split())
