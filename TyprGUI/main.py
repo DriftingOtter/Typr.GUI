@@ -18,21 +18,27 @@ import random
 import string
 
 # Variable States For Program
-time_Limit = 10 # (Default State: 10)
+internalTimeLimit = 10
+time_Limit = internalTimeLimit # (Default State: 10)
 internalTXTcounter = 0 # (Default State: 0)
 keys_pressed = 0 # (Default State: 0)
 timr_state = False # (Default State: False)
-running = False # (Default State: False)
+highlightrunning = False # (Default State: False)
+restartState = False # (Default State: False)
 usr_error_Count = 0 # (Default State: 0)
 numOfWords = 5 # (Default State: int() )
-displayText = []
-internalText = []
-word_count = int()
+displayText = [] # (Default State: [])
+internalText = [] # (Default State: [])
+word_count = int() # (Default State: int() )
 wordList = "/home/otter/Documents/Typr/WordLists/Loki_Word_List_EN.txt"
 
 def countdown():
 
-    global usrEntryBox, time_Limit
+    global usrEntryBox, time_Limit, restartState
+
+    if restartState:
+
+        return
 
     # change text in label        
     displayTimer['text'] = time_Limit
@@ -61,20 +67,22 @@ def is_typing(event):
     global time_Limit, timr_state
 
     # check if the user is typing in the Text widget
-    if event.widget == usrEntryBox and timr_state == False:
+    if timr_state == False:
+
+        if len(usrEntryBox.get("1.0", "end-1c")) > 0:
         
-        countdown()
-        timr_state = True
+            countdown()
+            timr_state = True
 
 def check_letter(event):
 
     global internalText, usrEntryBox, internalTXTcounter 
-    global running, usr_error_Count
+    global highlightrunning, usr_error_Count
 
-    if running:
+    if highlightrunning:
         return
 
-    running = True
+    highlightrunning = True
 
     usrEntryBox.unbind("<KeyRelease>", check_letter)
 
@@ -99,7 +107,7 @@ def check_letter(event):
             usrEntryBox.tag_remove("ErrorColor", "end-2c", "end-1c")
 
     usrEntryBox.bind("<KeyRelease>", check_letter)
-    running = False
+    highlightrunning = False
 
 def earlyFinishCheck():
 
@@ -110,12 +118,42 @@ def earlyFinishCheck():
         last_letter = usrEntryBox.get("end-2c", "end-1c")
         usrTextLength = len(usrEntryBox.get("1.0", "end"))
 
-        # TODO: fix function 
         if usrTextLength == len(displayText):
 
             if last_letter.strip() == (displayText[-2:]).strip():
                 usrEntryBox.config(state=DISABLED)
                 time_Limit = 0
+
+# TODO: Finish Makign The Restart Func
+def restartTest(event):
+
+    global time_Limit, displayTimer, internalTimeLimit, restartState
+    global usrEntryBox, challengeText, displayText, timr_state
+
+    restartState = True
+
+    time_Limit = internalTimeLimit
+
+    displayTimer['text'] = "Please Begin Typing..."
+
+    displayText = []
+    generateChallengeText()
+
+    challengeText.config(state=NORMAL)
+    challengeText.delete("1.0", "end")
+    challengeText.insert(INSERT, displayText)
+    challengeText.config(state=DISABLED)
+
+    if usrEntryBox['state'] == DISABLED:
+
+        usrEntryBox.config(state=NORMAL)
+        usrEntryBox.delete("1.0", "end")
+    else:
+
+        usrEntryBox.delete("1.0", "end")
+
+    timr_state = False
+    restartState = False
 
 def key_press_counter(event):
 
@@ -158,12 +196,18 @@ def generateChallengeText():
     with open(wordList, "r") as currenText:
         # Reads The Line Number From Text
         lines = currenText.readlines()
+        numLines = len(lines)
+
+    #Generate a random line number between 0 to number of lines in the file
+    randomLineGen = random.randint(0, numLines - 1)
 
     # makes loop for adding words into the displayText VAR
     for z in range(0, numOfWords):
         if z != numOfWords:
             randomLineGen = random.randint(0, 977)# the number of words in the word list
+
             displayText.append(lines[randomLineGen])
+            randomLineGen = random.randint(0, numLines - 1)
         else:
             break
 
@@ -214,6 +258,7 @@ challengeText = Text(
     fg="#ffffff",
     wrap=WORD,
     relief=FLAT,
+    borderwidth=0,
     takefocus=0
 )
 challengeText.pack(anchor=CENTER, pady=20)
@@ -228,6 +273,7 @@ usrEntryBox = Text(
     bg=root['bg'], 
     fg="#ffffff", 
     relief=FLAT,
+    borderwidth=0,
     takefocus=0,
     insertbackground="#ffffff", 
     insertofftime=0, 
@@ -242,7 +288,7 @@ root.bind("<Configure>", lambda event: gameInputAndOutputFrame.place_configure(r
 usrEntryBox.bind("<KeyPress>", is_typing)
 usrEntryBox.bind("<KeyRelease>", check_letter)
 usrEntryBox.bind("<KeyRelease>", key_press_counter)
-
+root.bind("<Escape>", restartTest)
 
 if __name__ == "__main__":
     root.mainloop()
