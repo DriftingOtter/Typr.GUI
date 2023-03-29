@@ -1,4 +1,5 @@
 # Imports
+import sys
 import random
 import string
 import time
@@ -14,6 +15,7 @@ time_STOP = float()
 word_count = int()
 internalText = []
 displayText = []
+tryAgain = str()
 
 # Holds Word List Location
 wordList = "/home/otter/Documents/Typr/WordLists/Loki_Word_List_EN.txt"
@@ -56,9 +58,6 @@ def generateChallengeText():
         # Reads The Line Number From Text
         lines = currenText.readlines()
 
-
-
-
     # makes loop for adding words into the displayText VAR
     for i in range(0, 10):
         if i != 10:
@@ -89,7 +88,6 @@ def generateChallengeText():
     word_count = len(displayText.split())
 
     print(Fore.RED + "[", displayText, Fore.RED + "]")
-    print("\n")
 
 
 def plyrStart():
@@ -124,7 +122,7 @@ def checkPlyrScore():
     else:
 
         # Print Result Message
-        print(Fore.RED + "\nNice Try! Some Mistakes There Though, Wanna Do Another ?]\n")
+        print(Fore.RED + "\nNice Try! Some Mistakes There Though, Wanna Do Another ?\n")
 
 
         print(Fore.GREEN + "[Accuracy:", TextAcc(plyr_text, displayText, word_count), "%]")
@@ -133,23 +131,9 @@ def checkPlyrScore():
               WordsPerMinute(time_STOP, time_START, word_count, TimeTaken(time_STOP, time_START)),"]")
 
 
-
-
-while True:
-
-    os.system('clear')
-    generateChallengeText()
-    plyrStart()
-    checkPlyrScore()
-
-    tryagain = input(Fore.BLUE + "\nWanna Another Try ? (y/n): ")
-
-    if tryagain.lower() == 'n':   
-        break
-    else:
-        
-        os.system('clear')
-        pass
-        
-
+# RUNS APPLICATION
+os.system('clear') # clears terminal window
+generateChallengeText()
+plyrStart()
+checkPlyrScore()
 
