@@ -65,7 +65,7 @@ def countdown():
         usrEntryBox.config(state=DISABLED)
         timeSTOP = time.time()
         timeTaken = timeSTOP - timeSTART
-        gross_WPM(word_count, timeTaken)
+        result(gross_WPM(word_count, timeTaken))
 
 
 def is_typing(event):
@@ -225,6 +225,18 @@ def generateChallengeText():
         pass
 
 
+def result(wordsPerMin):
+
+    global displayTimer, gameInputAndOutputFrame
+
+    displayTimer.pack_forget()
+    challengeText.pack_forget()
+    usrEntryBox.pack_forget()
+    gameInputAndOutputFrame.pack_forget()
+
+    displayResultWPM['text'] = "Words Per Minute: ", wordsPerMin
+    displayResultWPM.pack(pady=10)
+
 generateChallengeText()
 
 root = Tk()
@@ -261,7 +273,6 @@ timeLimitChanger = Button(
         takefocus=0
 )
 
-
 # Stops NavBar from expanding to fit widgets
 navBar.pack_propagate(0)
 
@@ -279,6 +290,13 @@ displayTimer = Label(
     fg="#ffffff",
 )
 displayTimer.pack(pady=10)
+
+displayResultWPM = Label(
+    master=gameInputAndOutputFrame,
+    font=("Rubik ExtraBold Italic", 80),
+    bg="#1A1A1A",
+    fg="#ffffff",
+)
 
 challengeText = Text(
     master=gameInputAndOutputFrame,
