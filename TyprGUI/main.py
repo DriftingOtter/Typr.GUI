@@ -202,8 +202,10 @@ def gross_WPM(word_count, timeTaken):
 
 def textAcc(plyr_text, displayText, word_count):
 
+    global textACC
+
     textACC = len(set(plyr_text.split()) & set(displayText.split()))
-    textACC = (textACC / word_count) * 100
+    textACC = round((textACC / word_count) * 100)
  
 
 def generateChallengeText():
@@ -265,7 +267,7 @@ def displayResult():
         displayResultWPM['text'] = "[ERROR] No WPM Detected"
 
     if textACC != None:
-        displayResultAcc['text'] = "Accuracy: " + str(textACC)
+        displayResultAcc['text'] = "Accuracy: " + str(textACC) + "%"
     else:
         displayResultAcc['text'] = "[ERROR] No Acc Detected"
 
