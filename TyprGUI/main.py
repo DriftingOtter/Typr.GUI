@@ -33,13 +33,13 @@ numOfWords = 1  # (Default State: int() )
 displayText = []  # (Default State: [])
 internalText = []  # (Default State: [])
 word_count = int()  # (Default State: int() )
+wordsPerMinute = str() # (Default State: str() )
+textACC = int() # (Default State: int() )
 wordList = "/home/otter/Documents/Typr/WordLists/Loki_Word_List_EN.txt"
-
 
 def countdown():
 
-    global usrEntryBox, time_Limit, restartState
-    global timeTaken, timeSTART, timeSTOP, internalTimeLimit
+    global usrEntryBox, time_Limit, restartState, internalTimeLimit
 
     if restartState:
         return
@@ -63,10 +63,22 @@ def countdown():
 
     if time_Limit == 0:
         usrEntryBox.config(state=DISABLED)
-        timeSTOP = time.time()
-        timeTaken = timeSTOP - timeSTART
-        result(gross_WPM(word_count, timeTaken))
+        testOverCalculation()
 
+def testOverCalculation():
+
+    global timeSTART, timeSTOP, timeTaken, wordsPerMinute
+    global word_count, displayText, usrEntryBox
+
+    timeSTOP = time.time()
+    timeTaken = timeSTOP - timeSTART
+
+    gross_WPM(word_count, timeTaken)
+
+    plyr_text = usrEntryBox.get("1.0", "end-1c")
+    textAcc(str(plyr_text), displayText, word_count)
+
+    displayResult()
 
 def is_typing(event):
 
@@ -148,12 +160,15 @@ def restartTest(event):
     global time_Limit, displayTimer, internalTimeLimit, restartState
     global usrEntryBox, challengeText, displayText, timr_state
     global timeSTART, timeSTOP, timeTaken
+    global wordsPerMinute
 
     restartState = True
 
     time_Limit = internalTimeLimit
 
     timeSTART, timeSTOP, timeTaken = 0
+
+    wordsPerMinute = str()
 
     displayTimer["text"] = "Please Begin Typing..."
 
@@ -180,10 +195,16 @@ def restartTest(event):
 
 def gross_WPM(word_count, timeTaken):
 
-    wordsPerMin = int((word_count / timeTaken) * 100)
+    global wordsPerMinute
 
-    return wordsPerMin
+    wordsPerMinute = round(((word_count / timeTaken) * 100))
 
+
+def textAcc(plyr_text, displayText, word_count):
+
+    textACC = len(set(plyr_text.split()) & set(displayText.split()))
+    textACC = (textACC / word_count) * 100
+ 
 
 def generateChallengeText():
 
@@ -225,17 +246,28 @@ def generateChallengeText():
         pass
 
 
-def result(wordsPerMin):
+def displayResult():
 
     global displayTimer, gameInputAndOutputFrame
+    global wordsPerMinute, textACC
 
     displayTimer.pack_forget()
     challengeText.pack_forget()
     usrEntryBox.pack_forget()
     gameInputAndOutputFrame.pack_forget()
 
-    displayResultWPM['text'] = "Words Per Minute: ", wordsPerMin
     displayResultWPM.pack(pady=10)
+    displayResultAcc.pack(pady=10)
+
+    if wordsPerMinute != None:
+        displayResultWPM['text'] = "Words Per Minute: " + str(wordsPerMinute)
+    else:
+        displayResultWPM['text'] = "[ERROR] No WPM Detected"
+
+    if textACC != None:
+        displayResultAcc['text'] = "Accuracy: " + str(textACC)
+    else:
+        displayResultAcc['text'] = "[ERROR] No Acc Detected"
 
 generateChallengeText()
 
@@ -293,6 +325,13 @@ displayTimer.pack(pady=10)
 
 displayResultWPM = Label(
     master=gameInputAndOutputFrame,
+    font=("Rubik ExtraBold", 80),
+    bg="#1A1A1A",
+    fg="#ffffff",
+)
+
+displayResultAcc = Label(
+    master=gameInputAndOutputFrame,
     font=("Rubik ExtraBold Italic", 80),
     bg="#1A1A1A",
     fg="#ffffff",
@@ -343,9 +382,6 @@ usrEntryBox.bind("<KeyPress>", is_typing)
 usrEntryBox.bind("<KeyRelease>", check_letter)
 
 root.bind("<Escape>", restartTest)
-
-keys_pressed = IntVar() # (Default State: IntVar() )
-keys_pressed.set(0)
 
 if __name__ == "__main__":
     root.mainloop()
