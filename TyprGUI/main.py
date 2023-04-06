@@ -87,10 +87,10 @@ def testOverCalculation():
 
 def is_typing(event):
 
-    global time_Limit, timr_state, timeSTART
+    global time_Limit, timr_state, timeSTART, restartState
 
     # check if the user is typing in the Text widget
-    if timr_state == False:
+    if timr_state == False and restartState == False:
 
         if len(usrEntryBox.get("1.0", "end-1c")) > 0:
 
@@ -215,6 +215,8 @@ def restartTestDuringTest(event):
     
     timr_state = False
     restartState = False
+
+
 
 def restartTestAfterTest():
 
