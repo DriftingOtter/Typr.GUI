@@ -200,6 +200,7 @@ def restartTestDuringTest(event):
     displayResultAcc.pack_forget()
     displayResultTimeTaken.pack_forget()
     restartTestButton.pack_forget()
+    quitTestButton.pack_forget()
 
     gameInputAndOutputFrame.pack(anchor="center", expand=False, fill="none")
     gameInputAndOutputFrame.place_configure(relx=0.5, rely=0.5, anchor="center")
@@ -259,6 +260,7 @@ def restartTestAfterTest():
     displayResultAcc.pack_forget()
     displayResultTimeTaken.pack_forget()
     restartTestButton.pack_forget()
+    quitTestButton.pack_forget()
 
     gameInputAndOutputFrame.pack(anchor="center", expand=False, fill="none")
     gameInputAndOutputFrame.place_configure(relx=0.5, rely=0.5, anchor="center")
@@ -275,6 +277,10 @@ def restartTestAfterTest():
     timr_state = False
     restartState = False
 
+
+def endTestQuit():
+
+    root.destroy()
 
 def gross_WPM(word_count, timeTaken):
 
@@ -363,7 +369,7 @@ def displayResult():
         displayResultTimeTaken['text'] = "[ERROR] No Acc Detected"
 
     restartTestButton.pack(pady=5)
-
+    quitTestButton.pack(pady=5)
 
 generateChallengeText()
 
@@ -442,12 +448,22 @@ displayResultTimeTaken = Label(
 
 restartTestButton = Button(
     master=gameInputAndOutputFrame,
-    font=("Rubik Bold", 50),
+    font=("Rubik ExtraBold", 50),
     bg="#1A1A1A",
     fg="#ffffff",
-    text="Retry",
+    text="RETRY",
     command=restartTestAfterTest,
 )
+
+quitTestButton = Button(
+    master=gameInputAndOutputFrame,
+    font=("Rubik ExtraBold", 50),
+    bg="#1A1A1A",
+    fg="#ffffff",
+    text="QUIT",
+    command=endTestQuit,
+)
+
 
 challengeText = Text(
     master=gameInputAndOutputFrame,
