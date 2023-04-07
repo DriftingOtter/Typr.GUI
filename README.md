@@ -2,11 +2,6 @@
 
 ## Description 📜
 
-__ShowMyKeys__ creates a graphical keyboard using Tkinter and pynput modules, allowing you to 
-visualize your keyboard presses in real-time. 
-The GUI updates to show when a key is pressed or released, giving you a visual 
-representation of your typing, this can be useful for learning to touch type 
-or for streamers wanting to display their speedy combos to their viewers.
 
 ## Getting Started ✅
 
@@ -14,20 +9,10 @@ or for streamers wanting to display their speedy combos to their viewers.
 
 ### Dependencies ⚙️
 
-* tkinter
-* ctypes (for windows ver.)
-* Rubik (font family)
-
 ### Installing 📂
 
-* Go to the releases section of this repo
-* Download the font that comes with latest release __(REQUIRED)__
-* Install the font
-* Then, dowload __.exe__ for the application
 
 ### Executing program 👟
-
-* Finally, run the __.exe__ for the software !
 
 ## Authors 👤
 
