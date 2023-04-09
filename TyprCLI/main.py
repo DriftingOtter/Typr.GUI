@@ -161,7 +161,7 @@ def displayUserScore():
         global plyr_text, displayText, time_STOP, time_START
 
         # Checks If User Input Is Same As Printed Text
-        if plyr_text.strip() == displayText.strip() and plyr_text != "" and plyr_text.strip() >= displayText.strip():
+        if plyr_text.strip() == displayText.strip() and plyr_text != "":
 
             textAccuracy = textAcc(plyr_text, displayText, len((displayText).split()))
             timeTakenForTest = timeTaken(time_STOP, time_START)
@@ -175,7 +175,7 @@ def displayUserScore():
                 )
             )
 
-        elif plyr_text.strip() != displayText.strip() and plyr_text != "" and plyr_text.strip() >= displayText.strip():
+        elif plyr_text.strip() != displayText.strip() and plyr_text != "":
 
             textAccuracy = textAcc(plyr_text, displayText, len((displayText).split()))
             timeTakenForTest = timeTaken(time_STOP, time_START)
@@ -188,15 +188,6 @@ def displayUserScore():
                     title="[bold italic red]Nice Try! Some Mistakes There Though, Wanna Do Another ?[/]",
                 )
             )
-
-        elif plyr_text.strip() < displayText.strip():
-
-            print(
-                Panel(
-                    "[bold red]Invalid test, text not fully typed.[/]",
-                    title="[bold italic red]ERROR[/]"
-                    )
-                )
 
         else:
 
