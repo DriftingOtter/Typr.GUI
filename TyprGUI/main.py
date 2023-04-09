@@ -6,6 +6,8 @@ import random
 import string
 import time
 
+
+
 #============================
 # Variable States For Program
 #============================
@@ -28,6 +30,7 @@ word_count = int()  # (Default State: int() )
 wordsPerMinute = str() # (Default State: str() )
 textACC = int() # (Default State: int() )
 wordList = "/home/otter/Documents/Typr/WordLists/Loki_Word_List_EN.txt"
+
 
 
 #======================
@@ -231,9 +234,24 @@ def restartTestAfterTest():
     restartTestDuringTest(None)
    
 
-def endTestQuit():
+def backToMenu():
 
-    root.destroy()
+    navBar.pack_forget()
+    smallappTitle.pack_forget()
+
+    for widget in gameInputAndOutputFrame.winfo_children():
+        widget.pack_forget()
+
+    gameInputAndOutputFrame.place_forget()
+    displayTimer.pack_forget()
+    challengeText.delete("1.0", "end")
+    challengeText.pack_forget()
+    usrEntryBox.pack_forget()
+
+    titlePageAppTitle.pack(side=TOP)
+    titlePagePlayButton.pack(pady=5)
+    titlePageQuitButton.pack(pady=5)
+    titlePageFrame.place(relx=0.5, rely=0.5, anchor="center")
 
 
 def gross_WPM(word_count, timeTaken):
@@ -337,10 +355,45 @@ def displayResult():
     restartTestButton.pack(pady=5)
     quitTestButton.pack(pady=5)
 
-#=======================
-# Inital Text Generation
-#=======================
-generateChallengeText()
+
+def titlePageQuit():
+
+    root.destroy()
+
+def titlePagePlay():
+
+    global titlePageFrame, titlePageAppTitle, titlePagePlayButton, titlePageQuitButton
+
+    #=======================
+    # Removing Title Widgets
+    #=======================
+    for widget in titlePageFrame.winfo_children():
+        widget.pack_forget()
+
+    titlePageFrame.place_forget()
+
+    #=======================
+    # Inital Text Generation
+    #=======================
+    generateChallengeText()
+
+    #===================
+    # Packs Test Widgets
+    #===================
+    navBar.pack(anchor='n')
+    navBar.pack_propagate(False)
+    smallappTitle.pack(anchor='w', padx=10)
+    gameInputAndOutputFrame.pack(anchor="center", expand=False, fill="none")
+    gameInputAndOutputFrame.place_configure(relx=0.5, rely=0.5, anchor="center") 
+    displayTimer.pack(pady=10)
+    challengeText.pack(anchor=CENTER, pady=20)
+    challengeText.insert(INSERT, displayText)
+    challengeText.config(state=DISABLED)
+    usrEntryBox.pack(anchor=CENTER)
+
+    children = root.winfo_children()
+
+
 
 #====================
 # Application Widgets
@@ -356,10 +409,8 @@ navBar = Frame(
         height=100,
         width=root.winfo_screenwidth()
 )
-navBar.pack(anchor='n')
-navBar.pack_propagate(False)
 
-appTitle = Label(
+smallappTitle = Label(
 
         master=navBar,
         text="Typr",
@@ -367,17 +418,12 @@ appTitle = Label(
         bg=root['bg'],
         fg="#ffffff"
 )
-appTitle.pack(anchor='w', padx=10)
-
 
 gameInputAndOutputFrame = Frame(
     master=root, 
     bg=root["bg"], 
     width=(root.winfo_screenwidth() - 100)
 )
-
-gameInputAndOutputFrame.pack(anchor="center", expand=False, fill="none")
-gameInputAndOutputFrame.place_configure(relx=0.5, rely=0.5, anchor="center")
 
 displayTimer = Label(
     master=gameInputAndOutputFrame,
@@ -386,7 +432,6 @@ displayTimer = Label(
     bg="#1A1A1A",
     fg="#ffffff",
 )
-displayTimer.pack(pady=10)
 
 displayResultWPM = Label(
     master=gameInputAndOutputFrame,
@@ -411,7 +456,7 @@ displayResultTimeTaken = Label(
 
 restartTestButton = Button(
     master=gameInputAndOutputFrame,
-    font=("Rubik ExtraBold", 50),
+    font=("Rubik Bold", 30),
     bg="#1A1A1A",
     fg="#ffffff",
     text="RETRY",
@@ -420,11 +465,11 @@ restartTestButton = Button(
 
 quitTestButton = Button(
     master=gameInputAndOutputFrame,
-    font=("Rubik ExtraBold", 50),
+    font=("Rubik Bold", 30),
     bg="#1A1A1A",
     fg="#ffffff",
-    text="QUIT",
-    command=endTestQuit,
+    text="RETURN TO MENU",
+    command=backToMenu,
 )
 
 challengeText = Text(
@@ -439,9 +484,6 @@ challengeText = Text(
     borderwidth=0,
     takefocus=0,
 )
-challengeText.pack(anchor=CENTER, pady=20)
-challengeText.insert(INSERT, displayText)
-challengeText.config(state=DISABLED)
 
 usrEntryBox = Text(
     master=gameInputAndOutputFrame,
@@ -457,7 +499,45 @@ usrEntryBox = Text(
     insertofftime=0,
     insertwidth=5,
 )
-usrEntryBox.pack(anchor=CENTER)
+
+titlePageFrame = Frame(
+        master=root,
+        bg=root['bg']
+        )
+titlePageFrame.pack()
+titlePageFrame.place(relx=0.5, rely=0.5, anchor="center")
+
+titlePageAppTitle = Label(
+        master=titlePageFrame,
+        text="Typr",
+        font=("Rubik ExtraBold", 100),
+        bg=root['bg'],
+        fg=("#ffffff"),
+) 
+titlePageAppTitle.pack(side=TOP)
+
+titlePagePlayButton = Button(
+        master=titlePageFrame,
+        text="Begin Test",
+        font=("Rubik Bold", 30),
+        bg=root['bg'],
+        fg="#ffffff",
+        relief=FLAT,
+        command=titlePagePlay,
+        )
+titlePagePlayButton.pack(pady=5)
+
+
+titlePageQuitButton = Button(
+        master=titlePageFrame,
+        text="Quit",
+        font=("Rubik Bold", 30),
+        bg=root['bg'],
+        fg="#ffffff",
+        relief=FLAT,
+        command=titlePageQuit,
+        )
+titlePageQuitButton.pack(pady=5)
 
 #=========================
 # Bindings For Application
