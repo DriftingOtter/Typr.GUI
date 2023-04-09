@@ -38,7 +38,8 @@ wordList = "/home/otter/Documents/Typr/WordLists/Loki_Word_List_EN.txt"
 #======================
 def countdown():
 
-    global usrEntryBox, time_Limit, restartState, internalTimeLimit, timeFinished
+    global usrEntryBox, time_Limit, restartState
+    global internalTimeLimit, timeFinished
 
     if restartState:
         return
@@ -65,6 +66,8 @@ def countdown():
         timeFinished = internalTimeLimit
         testOverCalculation()
 
+
+
 def testOverCalculation():
 
     global timeSTART, timeSTOP, timeTaken, wordsPerMinute
@@ -84,6 +87,7 @@ def testOverCalculation():
     displayResult()
 
 
+
 def is_typing(event):
 
     global time_Limit, timr_state, timeSTART, restartState
@@ -96,6 +100,7 @@ def is_typing(event):
             countdown()
             timeSTART = time.time()
             timr_state = True
+
 
 
 def check_letter(event):
@@ -152,6 +157,7 @@ def check_letter(event):
     highlightrunning = False
 
 
+
 def earlyFinishCheck():
 
     global usrEntryBox, displayText
@@ -170,6 +176,7 @@ def earlyFinishCheck():
                 usrEntryBox.config(state=DISABLED)
                 
                 time_Limit = 0
+
 
 
 def restartTestDuringTest(event):
@@ -229,10 +236,12 @@ def restartTestDuringTest(event):
     restartState = False
 
 
+
 def restartTestAfterTest():
 
     restartTestDuringTest(None)
    
+
 
 def backToMenu():
 
@@ -254,11 +263,13 @@ def backToMenu():
     titlePageFrame.place(relx=0.5, rely=0.5, anchor="center")
 
 
+
 def gross_WPM(word_count, timeTaken):
 
     global wordsPerMinute
 
     wordsPerMinute = round(((word_count / timeTaken) * 100))
+
 
 
 def textAcc(plyr_text, displayText, word_count):
@@ -268,6 +279,7 @@ def textAcc(plyr_text, displayText, word_count):
     textACC = len(set(plyr_text.split()) & set(displayText.split()))
     textACC = round((textACC / word_count) * 100)
  
+
 
 def generateChallengeText():
 
@@ -309,6 +321,7 @@ def generateChallengeText():
 
     else:
         pass
+
 
 
 def displayResult():
@@ -356,9 +369,12 @@ def displayResult():
     quitTestButton.pack(pady=5)
 
 
+
 def titlePageQuit():
 
     root.destroy()
+
+
 
 def titlePagePlay():
 
@@ -403,12 +419,16 @@ root.geometry(f"{root.winfo_screenwidth()}x{root.winfo_screenheight()}")
 root.title("Typr")
 root.config(bg="#1A1A1A")
 
+
+
 navBar = Frame(
         master=root, 
         bg=root['bg'], 
         height=100,
         width=root.winfo_screenwidth()
 )
+
+
 
 smallappTitle = Label(
 
@@ -419,11 +439,15 @@ smallappTitle = Label(
         fg="#ffffff"
 )
 
+
+
 gameInputAndOutputFrame = Frame(
     master=root, 
     bg=root["bg"], 
     width=(root.winfo_screenwidth() - 100)
 )
+
+
 
 displayTimer = Label(
     master=gameInputAndOutputFrame,
@@ -433,12 +457,16 @@ displayTimer = Label(
     fg="#ffffff",
 )
 
+
+
 displayResultWPM = Label(
     master=gameInputAndOutputFrame,
     font=("Rubik ExtraBold", 80),
     bg="#1A1A1A",
     fg="#ffffff",
 )
+
+
 
 displayResultAcc = Label(
     master=gameInputAndOutputFrame,
@@ -447,12 +475,16 @@ displayResultAcc = Label(
     fg="#ffffff",
 )
 
+
+
 displayResultTimeTaken = Label(
     master=gameInputAndOutputFrame,
     font=("Rubik ExtraBold Italic", 80),
     bg="#1A1A1A",
     fg="#ffffff",
 )
+
+
 
 restartTestButton = Button(
     master=gameInputAndOutputFrame,
@@ -463,6 +495,8 @@ restartTestButton = Button(
     command=restartTestAfterTest,
 )
 
+
+
 quitTestButton = Button(
     master=gameInputAndOutputFrame,
     font=("Rubik Bold", 30),
@@ -471,6 +505,8 @@ quitTestButton = Button(
     text="RETURN TO MENU",
     command=backToMenu,
 )
+
+
 
 challengeText = Text(
     master=gameInputAndOutputFrame,
@@ -484,6 +520,8 @@ challengeText = Text(
     borderwidth=0,
     takefocus=0,
 )
+
+
 
 usrEntryBox = Text(
     master=gameInputAndOutputFrame,
@@ -500,12 +538,16 @@ usrEntryBox = Text(
     insertwidth=5,
 )
 
+
+
 titlePageFrame = Frame(
         master=root,
         bg=root['bg']
         )
 titlePageFrame.pack()
 titlePageFrame.place(relx=0.5, rely=0.5, anchor="center")
+
+
 
 titlePageAppTitle = Label(
         master=titlePageFrame,
@@ -515,6 +557,8 @@ titlePageAppTitle = Label(
         fg=("#ffffff"),
 ) 
 titlePageAppTitle.pack(side=TOP)
+
+
 
 titlePagePlayButton = Button(
         master=titlePageFrame,
@@ -528,6 +572,7 @@ titlePagePlayButton = Button(
 titlePagePlayButton.pack(pady=5)
 
 
+
 titlePageQuitButton = Button(
         master=titlePageFrame,
         text="Quit",
@@ -539,6 +584,8 @@ titlePageQuitButton = Button(
         )
 titlePageQuitButton.pack(pady=5)
 
+
+
 #=========================
 # Bindings For Application
 #=========================
@@ -549,10 +596,15 @@ root.bind(
     ),
 )
 
+
+
 usrEntryBox.bind("<KeyPress>", is_typing)
 usrEntryBox.bind("<KeyRelease>", check_letter)
 
+
+
 root.bind("<Escape>", restartTestDuringTest)
+
 
 
 if __name__ == "__main__":
