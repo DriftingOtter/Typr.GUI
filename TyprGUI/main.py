@@ -1,3 +1,9 @@
+#====================
+# Ott6r // Daksh Kaul
+#====================
+
+
+
 #=======================
 # Imports & Dependencies
 #=======================
@@ -12,30 +18,30 @@ import time
 # Variable States For Program
 #============================
 internalTimeLimit = 10 # (Default State: 10)
-time_Limit = internalTimeLimit  # (Default State: 10)
+time_Limit = internalTimeLimit  # (Default State: internalTimeLimit)
 internalTXTcounter = 0  # (Default State: 0)
 timeSTART = 0 # (Default State: 0)
 timeSTOP = 0 # (Default State: 0)
 timeTaken = 0 # (Default State: 0)
-timeFinished = int() # (Default State: int() )
-keys_pressed = 0 # (Default State: int(0) )
+timeFinished = int() # (Default State: int())
+keys_pressed = 0 # (Default State: 0)
 timr_state = False  # (Default State: False)
 highlightrunning = False  # (Default State: False)
 restartState = False  # (Default State: False)
 usr_error_Count = 0  # (Default State: 0)
-numOfWords = 1  # (Default State: int() )
+numOfWords = 1  # (Default State: 10)
 displayText = []  # (Default State: [])
 internalText = []  # (Default State: [])
-word_count = int()  # (Default State: int() )
-wordsPerMinute = str() # (Default State: str() )
-textACC = int() # (Default State: int() )
+word_count = int()  # (Default State: int())
+wordsPerMinute = str() # (Default State: str())
+textACC = int() # (Default State: int())
 wordList = "/home/otter/Documents/Typr/WordLists/Loki_Word_List_EN.txt"
 
 
 
-#======================
-# Application Functions
-#======================
+#========================
+# Display Timer Countdown
+#========================
 def countdown():
 
     global usrEntryBox, time_Limit, restartState
@@ -68,6 +74,9 @@ def countdown():
 
 
 
+#=======================
+# Test Over Calculations
+#=======================
 def testOverCalculation():
 
     global timeSTART, timeSTOP, timeTaken, wordsPerMinute
@@ -88,6 +97,9 @@ def testOverCalculation():
 
 
 
+#================================================
+# Function To Check If Typing Has Already Started
+#================================================
 def is_typing(event):
 
     global time_Limit, timr_state, timeSTART, restartState
@@ -103,6 +115,9 @@ def is_typing(event):
 
 
 
+#====================
+# Syntax Highlighting
+#====================
 def check_letter(event):
 
     global internalText, usrEntryBox, internalTXTcounter
@@ -158,6 +173,9 @@ def check_letter(event):
 
 
 
+#============================================
+# Checker Functions For Early Test Completion
+#============================================
 def earlyFinishCheck():
 
     global usrEntryBox, displayText
@@ -179,6 +197,9 @@ def earlyFinishCheck():
 
 
 
+#=====================================
+# Restart Function For During The Test
+#=====================================
 def restartTestDuringTest(event):
 
     global time_Limit, displayTimer, internalTimeLimit, restartState
@@ -237,12 +258,18 @@ def restartTestDuringTest(event):
 
 
 
+#====================================
+# Restart Function After Test Is Over
+#====================================
 def restartTestAfterTest():
 
     restartTestDuringTest(None)
    
 
 
+#=============================
+# Return To Main Menu Function
+#=============================
 def backToMenu():
 
     navBar.pack_forget()
@@ -264,6 +291,9 @@ def backToMenu():
 
 
 
+#=============================
+# Words Per Minute Calculation
+#=============================
 def gross_WPM(word_count, timeTaken):
 
     global wordsPerMinute
@@ -272,6 +302,9 @@ def gross_WPM(word_count, timeTaken):
 
 
 
+#===========================
+# Text Accurarcy Calculation
+#===========================
 def textAcc(plyr_text, displayText, word_count):
 
     global textACC
@@ -281,6 +314,9 @@ def textAcc(plyr_text, displayText, word_count):
  
 
 
+#==========================================
+# Random Challenge Text Generation Function
+#==========================================
 def generateChallengeText():
 
     global wordList, displayText, internalText, word_count, usrEntryBox
@@ -324,6 +360,9 @@ def generateChallengeText():
 
 
 
+#===============================
+# Result Display Widget Function
+#===============================
 def displayResult():
 
     global displayTimer, gameInputAndOutputFrame
@@ -370,12 +409,18 @@ def displayResult():
 
 
 
+#========================
+# Main Menu Quit Function
+#=======================
 def titlePageQuit():
 
     root.destroy()
 
 
 
+#========================
+# Main Menu Play Function
+#========================
 def titlePagePlay():
 
     global titlePageFrame, titlePageAppTitle, titlePagePlayButton, titlePageQuitButton
@@ -411,9 +456,9 @@ def titlePagePlay():
 
 
 
-#====================
-# Application Widgets
-#====================
+#===================
+# Root Window Config
+#===================
 root = Tk()
 root.geometry(f"{root.winfo_screenwidth()}x{root.winfo_screenheight()}")
 root.title("Typr")
@@ -421,6 +466,9 @@ root.config(bg="#1A1A1A")
 
 
 
+#===============
+# Navagation Bar
+#===============
 navBar = Frame(
         master=root, 
         bg=root['bg'], 
@@ -430,6 +478,9 @@ navBar = Frame(
 
 
 
+#==============================
+# During Test Application Title
+#==============================
 smallappTitle = Label(
 
         master=navBar,
@@ -441,6 +492,9 @@ smallappTitle = Label(
 
 
 
+#==============================
+# Master Frame For Test Widgets
+#==============================
 gameInputAndOutputFrame = Frame(
     master=root, 
     bg=root["bg"], 
@@ -449,6 +503,9 @@ gameInputAndOutputFrame = Frame(
 
 
 
+#============================
+# On-screen Timer During Test
+#============================
 displayTimer = Label(
     master=gameInputAndOutputFrame,
     text="Please Begin Typing...",
@@ -459,6 +516,9 @@ displayTimer = Label(
 
 
 
+#===============================
+# Result Words Per Minute Widget
+#===============================
 displayResultWPM = Label(
     master=gameInputAndOutputFrame,
     font=("Rubik ExtraBold", 80),
@@ -468,6 +528,9 @@ displayResultWPM = Label(
 
 
 
+#==============================
+# Result Player Accuracy Widget
+#==============================
 displayResultAcc = Label(
     master=gameInputAndOutputFrame,
     font=("Rubik ExtraBold Italic", 80),
@@ -477,6 +540,9 @@ displayResultAcc = Label(
 
 
 
+#==========================================
+# Result Player Test Completion Time Widget
+#==========================================
 displayResultTimeTaken = Label(
     master=gameInputAndOutputFrame,
     font=("Rubik ExtraBold Italic", 80),
@@ -486,6 +552,9 @@ displayResultTimeTaken = Label(
 
 
 
+#=============================
+# Result Screen Restart Button
+#=============================
 restartTestButton = Button(
     master=gameInputAndOutputFrame,
     font=("Rubik Bold", 30),
@@ -497,6 +566,9 @@ restartTestButton = Button(
 
 
 
+#==================================
+# Result Screen Quit-To-Menu Button
+#==================================
 quitTestButton = Button(
     master=gameInputAndOutputFrame,
     font=("Rubik Bold", 30),
@@ -508,6 +580,9 @@ quitTestButton = Button(
 
 
 
+#===================================
+# Widget To Display Text To Be Typed
+#===================================
 challengeText = Text(
     master=gameInputAndOutputFrame,
     font=("Rubik", 40),
@@ -523,6 +598,9 @@ challengeText = Text(
 
 
 
+#===========================================
+# Test Box For Player To Type In During Test
+#===========================================
 usrEntryBox = Text(
     master=gameInputAndOutputFrame,
     font=("Rubik", 40),
@@ -540,6 +618,9 @@ usrEntryBox = Text(
 
 
 
+#=======================
+# Main Menu Master Frame
+#=======================
 titlePageFrame = Frame(
         master=root,
         bg=root['bg']
@@ -549,6 +630,9 @@ titlePageFrame.place(relx=0.5, rely=0.5, anchor="center")
 
 
 
+#============================
+# Main Menu Application Title
+#============================
 titlePageAppTitle = Label(
         master=titlePageFrame,
         text="Typr",
@@ -560,6 +644,9 @@ titlePageAppTitle.pack(side=TOP)
 
 
 
+#======================
+# Main Menu Play Button
+#======================
 titlePagePlayButton = Button(
         master=titlePageFrame,
         text="Begin Test",
@@ -573,6 +660,9 @@ titlePagePlayButton.pack(pady=5)
 
 
 
+#==================================
+# Main Menu Quit Application Button
+#==================================
 titlePageQuitButton = Button(
         master=titlePageFrame,
         text="Quit",
@@ -587,12 +677,12 @@ titlePageQuitButton.pack(pady=5)
 
 
 #=========================
-# Bindings For Application
+# Bindings For Widgets
 #=========================
 root.bind(
     "<Configure>",
     lambda event: gameInputAndOutputFrame.place_configure(
-        relx=0.5, rely=0.5, anchor="center"
+        relx=0.5, rely=0.5, anchor="center" # Keeps Test Master Frame In Center
     ),
 )
 
