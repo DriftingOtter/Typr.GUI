@@ -13,7 +13,6 @@ import string
 import time
 
 
-
 #============================
 # Variable States For Program
 #============================
@@ -29,7 +28,7 @@ timr_state = False  # (Default State: False)
 highlightrunning = False  # (Default State: False)
 restartState = False  # (Default State: False)
 usr_error_Count = 0  # (Default State: 0)
-numOfWords = 1  # (Default State: 10)
+numOfWords = 10  # (Default State: 10)
 displayText = []  # (Default State: [])
 internalText = []  # (Default State: [])
 word_count = int()  # (Default State: int())
@@ -47,7 +46,12 @@ def countdown():
     global usrEntryBox, time_Limit, restartState
     global internalTimeLimit, timeFinished
 
-    if restartState:
+
+    if restartState == True:
+        return
+
+
+    if len(usrEntryBox.get("1.0", "end-1c")) <= 0:
         return
 
     # change text in label
@@ -102,16 +106,17 @@ def testOverCalculation():
 #================================================
 def is_typing(event):
 
-    global time_Limit, timr_state, timeSTART, restartState
+
+    global time_Limit, timr_state, timeSTART, restartState, usrEntryBox
 
     # check if the user is typing in the Text widget
     if timr_state == False and restartState == False:
 
-        if len(usrEntryBox.get("1.0", "end-1c")) > 0:
+            if len(usrEntryBox.get("1.0", "end-1c")) > 0:
 
-            countdown()
-            timeSTART = time.time()
-            timr_state = True
+                countdown()
+                timeSTART = time.time()
+                timr_state = True
 
 
 
@@ -130,43 +135,47 @@ def check_letter(event):
 
 
     current_letter = usrEntryBox.get("insert-1c", "insert")
-    
-    correct_letter = internalText[internalTXTcounter]
 
-    usrEntryBox.tag_config("ErrorColor", background="red")
+    try:
+        correct_letter = internalText[internalTXTcounter]
+
+        usrEntryBox.tag_config("ErrorColor", background="red")
 
 
-    if event.keysym == "BackSpace":
+        if event.keysym == "BackSpace":
 
-        if internalTXTcounter > 0:
+            if internalTXTcounter > 0:
 
-            internalTXTcounter -= 1
-            
-            usrEntryBox.tag_remove("ErrorColor", "insert-1c", "insert")
+                internalTXTcounter -= 1
 
-            if usr_error_Count > 0:
+                usrEntryBox.tag_remove("ErrorColor", "insert-1c", "insert")
 
-                usr_error_Count -= 1
-    
-    else:
+                if usr_error_Count > 0:
 
-        if current_letter != correct_letter:
-
-            if len(internalText) > internalTXTcounter:
-
-                internalTXTcounter += 1
-
-            usrEntryBox.tag_add("ErrorColor", "insert-1c", "insert")
-
-            usr_error_Count += 1
+                    usr_error_Count -= 1
 
         else:
 
-            if len(internalText) > internalTXTcounter:
+            if current_letter != correct_letter:
 
-                internalTXTcounter += 1
+                if len(internalText) > internalTXTcounter:
 
-            usrEntryBox.tag_remove("ErrorColor", "insert-1c", "insert")
+                    internalTXTcounter += 1
+
+                usrEntryBox.tag_add("ErrorColor", "insert-1c", "insert")
+
+                usr_error_Count += 1
+
+            else:
+
+                if len(internalText) > internalTXTcounter:
+
+                    internalTXTcounter += 1
+
+                usrEntryBox.tag_remove("ErrorColor", "insert-1c", "insert")
+
+    except:
+        pass
 
 
     highlightrunning = False
@@ -192,7 +201,6 @@ def earlyFinishCheck():
             if last_letter.strip() == (displayText[-2:]).strip():
 
                 usrEntryBox.config(state=DISABLED)
-                
                 time_Limit = 0
 
 
@@ -205,19 +213,29 @@ def restartTestDuringTest(event):
     global time_Limit, displayTimer, internalTimeLimit, restartState
     global usrEntryBox, challengeText, displayText, timr_state
     global timeSTART, timeSTOP, timeTaken
-    global wordsPerMinute
+    global wordsPerMinute, internalTXTcounter
 
     restartState = True
+    time_Limit = 0
 
-    time_Limit = internalTimeLimit
-    timeSTART = 0
-    timeSTOP = 0
-    timeTaken = 0
-
-    wordsPerMinute = str()
+    internalTimeLimit = 10 # (Default State: 10)
+    time_Limit = internalTimeLimit  # (Default State: internalTimeLimit)
+    internalTXTcounter = 0  # (Default State: 0)
+    timeSTART = 0 # (Default State: 0)
+    timeSTOP = 0 # (Default State: 0)
+    timeTaken = 0 # (Default State: 0)
+    timeFinished = int() # (Default State: int())
+    keys_pressed = 0 # (Default State: 0)
+    highlightrunning = False  # (Default State: False)
+    usr_error_Count = 0  # (Default State: 0)
+    numOfWords = 10  # (Default State: 10)
+    displayText = []  # (Default State: [])
+    internalText = []  # (Default State: [])
+    word_count = int()  # (Default State: int())
+    wordsPerMinute = str() # (Default State: str())
+    textACC = int() # (Default State: int())
 
     displayTimer["text"] = "Please Begin Typing..."
-
     displayText = []
 
     generateChallengeText()
@@ -236,23 +254,34 @@ def restartTestDuringTest(event):
     usrEntryBox.delete("1.0", "end")
 
     # Remove Result Widgets
-    displayResultWPM.pack_forget()
-    displayResultAcc.pack_forget()
-    displayResultTimeTaken.pack_forget()
-    restartTestButton.pack_forget()
-    quitTestButton.pack_forget()
+    if displayResultWPM.winfo_ismapped():
+        displayResultWPM.pack_forget()
+
+
+    if displayResultAcc.winfo_ismapped():
+        displayResultAcc.pack_forget()
+
+
+    if displayResultTimeTaken.winfo_ismapped():
+        displayResultTimeTaken.pack_forget()
+
+    if restartTestButton.winfo_ismapped():
+        restartTestButton.pack_forget()
+
+    
+    if quitTestButton.winfo_ismapped():
+        quitTestButton.pack_forget()
 
 
     # Packs Test Widgets
-    gameInputAndOutputFrame.pack(anchor="center", expand=False, fill="none")
-    gameInputAndOutputFrame.place_configure(relx=0.5, rely=0.5, anchor="center") 
+    iOFrame.pack(anchor="center", expand=False, fill="none")
+    iOFrame.place_configure(relx=0.5, rely=0.5, anchor="center") 
     displayTimer.pack(pady=10)
     challengeText.pack(anchor=CENTER, pady=20)
     challengeText.insert(INSERT, displayText)
     challengeText.config(state=DISABLED)
     usrEntryBox.pack(anchor=CENTER)
 
-    
     timr_state = False
     restartState = False
 
@@ -262,7 +291,6 @@ def restartTestDuringTest(event):
 # Restart Function After Test Is Over
 #====================================
 def restartTestAfterTest():
-
     restartTestDuringTest(None)
    
 
@@ -270,24 +298,80 @@ def restartTestAfterTest():
 #=============================
 # Return To Main Menu Function
 #=============================
-def backToMenu():
+def returnToMenu():
 
-    navBar.pack_forget()
-    smallappTitle.pack_forget()
+    global displayText, challengeText, usrEntryBox, displayTimer
+    global timeSTOP, timeSTART, time_Limit, internalTimeLimit, timeTaken
+    global wordsPerMinute, internalTXTcounter
 
-    for widget in gameInputAndOutputFrame.winfo_children():
-        widget.pack_forget()
+    if navBar.winfo_ismapped():
 
-    gameInputAndOutputFrame.place_forget()
-    displayTimer.pack_forget()
-    challengeText.delete("1.0", "end")
-    challengeText.pack_forget()
-    usrEntryBox.pack_forget()
+        if smallappTitle.winfo_ismapped():
+            navBar.pack_forget()
+            smallappTitle.pack_forget()
+
+
+    for child in iOFrame.winfo_children():
+        if child.winfo_ismapped():
+
+            child.pack_forget()
+
+
+    if iOFrame.winfo_ismapped():
+        iOFrame.place_forget()
+
+
+    if displayTimer.winfo_ismapped():
+        displayTimer.pack_forget()
+
+
+    if challengeText.winfo_ismapped():
+        challengeText.delete("1.0", "end")
+        challengeText.pack_forget()
+
+
+    if usrEntryBox.winfo_ismapped():
+        usrEntryBox.pack_forget()
 
     titlePageAppTitle.pack(side=TOP)
     titlePagePlayButton.pack(pady=5)
     titlePageQuitButton.pack(pady=5)
     titlePageFrame.place(relx=0.5, rely=0.5, anchor="center")
+
+    #=========================================
+    # Resets Elements Before Returning To Menu
+    #=========================================
+
+    time_Limit = internalTimeLimit
+    timeSTART = 0
+    timeSTOP = 0
+    timeTaken = 0
+
+    wordsPerMinute = str()
+
+    displayTimer["text"] = "Please Begin Typing..."
+    displayText = []
+
+    internalTXTcounter = 0
+
+    challengeText.config(state=NORMAL)
+    challengeText.delete("1.0", "end")
+
+    usrEntryBox.config(state=NORMAL)
+    usrEntryBox.delete("1.0", "end")
+
+     
+    #=========================
+    # Bindings For Widgets
+    #=========================
+    root.unbind( "<Configure>", lambda event: iOFrame.place_configure(relx=0.5, rely=0.5, anchor="center"),)
+
+    usrEntryBox.unbind("<KeyPress>", is_typing)
+    usrEntryBox.unbind("<KeyRelease>", check_letter)
+
+
+
+    root.unbind("<Escape>", restartTestDuringTest)
 
 
 
@@ -341,10 +425,10 @@ def generateChallengeText():
         else:
             break
 
-    # Removes  default array boiler plate
+    # Concatenates Array Elem Into String In Same Var
     displayText = "".join([str(elem) for elem in displayText])
 
-    # arranges the text into 1 line via removing enter spaces
+    # Aligns text onto 1 line by removing empty whitespaces
     displayText = displayText.translate({ord(c): " " for c in string.whitespace})
 
     # Finds Word Length Of Text
@@ -352,9 +436,7 @@ def generateChallengeText():
     word = displayText.strip()
 
     for character in word:
-
         internalText.append(character)
-
     else:
         pass
 
@@ -365,42 +447,46 @@ def generateChallengeText():
 #===============================
 def displayResult():
 
-    global displayTimer, gameInputAndOutputFrame
+    global displayTimer, iOFrame
     global wordsPerMinute, textACC
     global timeFinished
     global restartTestButton
 
-    displayTimer.pack_forget()
-    challengeText.pack_forget()
-    usrEntryBox.pack_forget()
-    gameInputAndOutputFrame.pack_forget()
+    if displayTimer.winfo_ismapped() == True:
+        displayTimer.pack_forget()
+
+
+    if challengeText.winfo_ismapped() == True:
+        challengeText.pack_forget()
+
+
+    if usrEntryBox.winfo_ismapped() == True:
+        usrEntryBox.pack_forget()
+
+
+    if iOFrame.winfo_ismapped() == True:
+        iOFrame.pack_forget()
 
     displayResultWPM.pack(pady=10)
     displayResultAcc.pack(pady=10)
     displayResultTimeTaken.pack(pady=10)
 
     if wordsPerMinute != None:
-
         displayResultWPM['text'] = "Words Per Minute: " + str(wordsPerMinute)
 
     else:
-
         displayResultWPM['text'] = "[ERROR] No WPM Detected"
 
     if textACC != None:
-
         displayResultAcc['text'] = "Accuracy: " + str(textACC) + "%"
 
     else:
-
         displayResultAcc['text'] = "[ERROR] No Acc Detected"
 
     if timeFinished != None:
-
         displayResultTimeTaken['text'] = "Time Taken: " + str(timeFinished) + "s"
 
     else:
-
         displayResultTimeTaken['text'] = "[ERROR] No Acc Detected"
 
 
@@ -423,13 +509,18 @@ def titlePageQuit():
 #========================
 def titlePagePlay():
 
-    global titlePageFrame, titlePageAppTitle, titlePagePlayButton, titlePageQuitButton
+    global titlePageFrame, titlePageAppTitle
+    global titlePagePlayButton, titlePageQuitButton
 
     #=======================
     # Removing Title Widgets
     #=======================
-    for widget in titlePageFrame.winfo_children():
-        widget.pack_forget()
+
+    for child in titlePageFrame.winfo_children():
+        if child.winfo_ismapped():
+
+            child.pack_forget()
+
 
     titlePageFrame.place_forget()
 
@@ -443,16 +534,36 @@ def titlePagePlay():
     #===================
     navBar.pack(anchor='n')
     navBar.pack_propagate(False)
+
     smallappTitle.pack(anchor='w', padx=10)
-    gameInputAndOutputFrame.pack(anchor="center", expand=False, fill="none")
-    gameInputAndOutputFrame.place_configure(relx=0.5, rely=0.5, anchor="center") 
+
+    iOFrame.pack(anchor="center", expand=False, fill="none")
+    iOFrame.place_configure(relx=0.5, rely=0.5, anchor="center")
+
     displayTimer.pack(pady=10)
+
     challengeText.pack(anchor=CENTER, pady=20)
     challengeText.insert(INSERT, displayText)
     challengeText.config(state=DISABLED)
+
     usrEntryBox.pack(anchor=CENTER)
 
     children = root.winfo_children()
+
+    
+    #=========================
+    # Bindings For Widgets
+    #=========================
+    root.bind( "<Configure>", lambda event: iOFrame.place_configure(relx=0.5, rely=0.5, anchor="center"),)
+
+    usrEntryBox.bind("<KeyPress>", is_typing)
+    usrEntryBox.bind("<KeyRelease>", check_letter)
+
+
+
+    root.bind("<Escape>", restartTestDuringTest)
+
+
 
 
 
@@ -482,7 +593,6 @@ navBar = Frame(
 # During Test Application Title
 #==============================
 smallappTitle = Label(
-
         master=navBar,
         text="Typr",
         font=("Rubik Bold", 50, 'italic'),
@@ -495,7 +605,7 @@ smallappTitle = Label(
 #==============================
 # Master Frame For Test Widgets
 #==============================
-gameInputAndOutputFrame = Frame(
+iOFrame = Frame(
     master=root, 
     bg=root["bg"], 
     width=(root.winfo_screenwidth() - 100)
@@ -507,7 +617,7 @@ gameInputAndOutputFrame = Frame(
 # On-screen Timer During Test
 #============================
 displayTimer = Label(
-    master=gameInputAndOutputFrame,
+    master=iOFrame,
     text="Please Begin Typing...",
     font=("Rubik ExtraBold Italic", 80),
     bg="#1A1A1A",
@@ -520,7 +630,7 @@ displayTimer = Label(
 # Result Words Per Minute Widget
 #===============================
 displayResultWPM = Label(
-    master=gameInputAndOutputFrame,
+    master=iOFrame,
     font=("Rubik ExtraBold", 80),
     bg="#1A1A1A",
     fg="#ffffff",
@@ -532,7 +642,7 @@ displayResultWPM = Label(
 # Result Player Accuracy Widget
 #==============================
 displayResultAcc = Label(
-    master=gameInputAndOutputFrame,
+    master=iOFrame,
     font=("Rubik ExtraBold Italic", 80),
     bg="#1A1A1A",
     fg="#ffffff",
@@ -544,7 +654,7 @@ displayResultAcc = Label(
 # Result Player Test Completion Time Widget
 #==========================================
 displayResultTimeTaken = Label(
-    master=gameInputAndOutputFrame,
+    master=iOFrame,
     font=("Rubik ExtraBold Italic", 80),
     bg="#1A1A1A",
     fg="#ffffff",
@@ -556,7 +666,7 @@ displayResultTimeTaken = Label(
 # Result Screen Restart Button
 #=============================
 restartTestButton = Button(
-    master=gameInputAndOutputFrame,
+    master=iOFrame,
     font=("Rubik Bold", 30),
     bg="#1A1A1A",
     fg="#ffffff",
@@ -570,12 +680,12 @@ restartTestButton = Button(
 # Result Screen Quit-To-Menu Button
 #==================================
 quitTestButton = Button(
-    master=gameInputAndOutputFrame,
+    master=iOFrame,
     font=("Rubik Bold", 30),
     bg="#1A1A1A",
     fg="#ffffff",
     text="RETURN TO MENU",
-    command=backToMenu,
+    command=returnToMenu,
 )
 
 
@@ -584,7 +694,7 @@ quitTestButton = Button(
 # Widget To Display Text To Be Typed
 #===================================
 challengeText = Text(
-    master=gameInputAndOutputFrame,
+    master=iOFrame,
     font=("Rubik", 40),
     width=50,
     height=1,
@@ -602,7 +712,7 @@ challengeText = Text(
 # Test Box For Player To Type In During Test
 #===========================================
 usrEntryBox = Text(
-    master=gameInputAndOutputFrame,
+    master=iOFrame,
     font=("Rubik", 40),
     width=challengeText["width"],
     height=1,
@@ -624,7 +734,7 @@ usrEntryBox = Text(
 titlePageFrame = Frame(
         master=root,
         bg=root['bg']
-        )
+)
 titlePageFrame.pack()
 titlePageFrame.place(relx=0.5, rely=0.5, anchor="center")
 
@@ -655,7 +765,7 @@ titlePagePlayButton = Button(
         fg="#ffffff",
         relief=FLAT,
         command=titlePagePlay,
-        )
+)
 titlePagePlayButton.pack(pady=5)
 
 
@@ -671,31 +781,8 @@ titlePageQuitButton = Button(
         fg="#ffffff",
         relief=FLAT,
         command=titlePageQuit,
-        )
-titlePageQuitButton.pack(pady=5)
-
-
-
-#=========================
-# Bindings For Widgets
-#=========================
-root.bind(
-    "<Configure>",
-    lambda event: gameInputAndOutputFrame.place_configure(
-        relx=0.5, rely=0.5, anchor="center" # Keeps Test Master Frame In Center
-    ),
 )
-
-
-
-usrEntryBox.bind("<KeyPress>", is_typing)
-usrEntryBox.bind("<KeyRelease>", check_letter)
-
-
-
-root.bind("<Escape>", restartTestDuringTest)
-
-
+titlePageQuitButton.pack(pady=5)
 
 if __name__ == "__main__":
     root.mainloop()
