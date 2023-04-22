@@ -559,8 +559,6 @@ def titlePagePlay():
     usrEntryBox.bind("<KeyPress>", is_typing)
     usrEntryBox.bind("<KeyRelease>", check_letter)
 
-
-
     root.bind("<Escape>", restartTestDuringTest)
 
 
