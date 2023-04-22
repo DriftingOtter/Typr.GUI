@@ -12,7 +12,6 @@ import random
 import string
 import time
 
-
 #============================
 # Variable States For Program
 #============================
@@ -562,7 +561,11 @@ def titlePagePlay():
     root.bind("<Escape>", restartTestDuringTest)
 
 
+def timeLimitChange():
 
+    global internalTimeLimit, time_Limit
+
+     
 
 
 #===================
@@ -598,7 +601,14 @@ smallappTitle = Label(
         fg="#ffffff"
 )
 
-
+timeLimitChanger = Button(
+        master=navBar,
+        text=internalTimeLimit,
+        font=("Rubik Italic", 50),
+        bg=root['bg'],
+        fg="#ffffff",
+        command=timeLimitChange
+)
 
 #==============================
 # Master Frame For Test Widgets
