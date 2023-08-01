@@ -36,7 +36,7 @@ time_START = float()
 time_STOP = float()
 internalText = []
 displayText = []
-wordList = "/home/otter/Documents/Typr/WordLists/Loki_Word_List_EN.txt"
+wordList = "/home/daksh/Documents/Typr/WordLists/Loki_Word_List_EN.txt"
 
 
 

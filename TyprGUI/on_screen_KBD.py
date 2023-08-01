@@ -1,11 +1,9 @@
 from tkinter import *
-import ctypes
 
 root = Tk()
 root.geometry("1331x600")
 root.title("On Screen Keyboard - Typr")
 root.config(bg="#1A1A1A")
-ctypes.windll.shcore.SetProcessDpiAwareness(True)
 
 def refactorSpecialChar(text):
 

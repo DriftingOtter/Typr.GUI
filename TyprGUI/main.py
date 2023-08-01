@@ -33,7 +33,7 @@ internalText = []  # (Default State: [])
 word_count = int()  # (Default State: int())
 wordsPerMinute = str() # (Default State: str())
 textACC = int() # (Default State: int())
-wordList = "/home/otter/Documents/Typr/WordLists/Loki_Word_List_EN.txt"
+wordList = "/home/daksh/Documents/Typr/WordLists/Loki_Word_List_EN.txt"
 
 
 
