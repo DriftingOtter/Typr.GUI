@@ -12,7 +12,7 @@ import threading
 #---------------------------------
 def generateChallengeText(numOfWords):
 
-    wordList = "/home/daksh/Documents/Typr/WordLists/Loki_Word_List_EN.txt"
+    wordList = "C:\\Users\\ShameFul\\Documents\\Typr\\WordLists\\Loki_Word_List_EN.txt" # Change To OS BASED PATH
     challengeText = []
 
     with open(wordList, "r") as currentText:
@@ -52,6 +52,7 @@ def check_completion(user_text):
         if len(internal_words) == len(user_words):
 
             for i in range(len(internal_words)):
+
                 if internal_words[i] != user_words[i]:
                     return False
 
@@ -62,25 +63,43 @@ def check_completion(user_text):
 
 def retry_Submit_Logic(): # For Checking If the Usr Wants to Retry Or Submit Ans
 
-    global usrAns, progressionBar
+    global usrAns, progress, progressionBar
 
     if retryButton:
         challengeText.empty()
         st.session_state.internalText = conv_LTS(generateChallengeText(10))
+
         usrAns = ""
+
+        progressionBar = st.empty()
+        progress = 0
+
+        check_completion_progress(usrAns)
 
     else:
         if usrAns:
-            if len(usrAns) != len(st.session_state.internalText):
+            if len(usrAns) != len(st.session_state.internalText): #type: ignore
                 st.toast("You Failed!")
+                progressionBar = st.empty()
+
+                progressionBar = st.empty()
+                progress = 0
 
             else:
                 if check_completion(usrAns):
                     st.toast("You Did it!")
-                    progressionBar.progress(0)
+
+                    progressionBar = st.empty()
+
+                    progressionBar = st.empty()
+                    progress = 0
                 else:
                     st.toast("You Failed!")
-                    progressionBar.progress(0)
+
+                    progressionBar = st.empty()
+                
+                    progressionBar = st.empty()
+                    progress = 0
 
                 challengeText.empty()
                 st.session_state.internalText = conv_LTS(generateChallengeText(10))
@@ -95,7 +114,8 @@ def check_completion_progress(user_text):
         internal_words_len = len(st.session_state.internalText.split())
         user_words_len = len(user_text.split())
 
-        progress = int((user_words_len/internal_words_len)*100)
+        if user_words_len <= internal_words_len:
+            progress = int((user_words_len/internal_words_len)*100)
 
         progressionBar.progress(progress)
 
@@ -108,9 +128,6 @@ def capture_user_input():
         usrAns = st.session_state.user_input
         time.sleep(0.1)
 
-
-def calc_WPM():
-    pass
 
 
 #-----------------------
@@ -176,17 +193,5 @@ with st.container():
     progressionBar = st.progress(0)
     progress = 0
     check_completion_progress(usrAns)
-
-
-    usr_WPM = int(0)
-
-
-    if "usr_WordsPerMinute" not in st.session_state:
-        st.session_state.usr_WordsPerMinute = usr_WPM
-
-
-    if usrAns and usrAns is not None:
-        pass
-
-
+    
 
