@@ -12,7 +12,7 @@ import threading
 #---------------------------------
 def generateChallengeText(numOfWords):
 
-    wordList = "C:\\Users\\ShameFul\\Documents\\Typr\\WordLists\\Loki_Word_List_EN.txt" # Change To OS BASED PATH
+    wordList = "/home/daksh/Documents/Typr/WordLists/Loki_Word_List_EN.txt"
     challengeText = []
 
     with open(wordList, "r") as currentText:
@@ -49,61 +49,72 @@ def check_completion(user_text):
         internal_words = st.session_state.internalText.split()
         user_words = user_text.split()
 
-        if len(internal_words) == len(user_words):
 
-            for i in range(len(internal_words)):
+        if len(internal_words) != len(user_words):
+            return False
 
-                if internal_words[i] != user_words[i]:
-                    return False
+        for i in range(len(internal_words)):
+            if internal_words[i] != user_words[i]:
+                return False
 
-            return True
+        
+        return True
 
-    return False
 
+def retry_Logic():
 
-def retry_Submit_Logic(): # For Checking If the Usr Wants to Retry Or Submit Ans
-
-    global usrAns, progress, progressionBar
+    global usrAns, progress, progressionBar, usrAnsText
 
     if retryButton:
-        challengeText.empty()
-        st.session_state.internalText = conv_LTS(generateChallengeText(10))
-
-        usrAns = ""
-
         progressionBar = st.empty()
         progress = 0
+
+        challengeText.empty()
+        st.session_state.internalText = conv_LTS(generateChallengeText(10))
+       
+        usrAnsText = ""
 
         check_completion_progress(usrAns)
 
     else:
-        if usrAns:
-            if len(usrAns) != len(st.session_state.internalText): #type: ignore
-                st.toast("You Failed!")
-                progressionBar = st.empty()
+
+        submit_Logic()
+
+
+def submit_Logic():
+
+    global usrAns, progress, progressionBar
+
+    if usrAns and (len(usrAns) >= len(st.session_state.internalText)):
+        if len(usrAns) != len(st.session_state.internalText): #type: ignore
+
+            st.toast("You Failed!")
+
+            progressionBar = st.empty()
+            progress = 0
+            #progressionBar.progress(progress)
+
+        else:
+            if check_completion(usrAns):
+
+                st.toast("You Did it!")
 
                 progressionBar = st.empty()
                 progress = 0
+                #progressionBar.progress(progress)
+            else:                    
 
-            else:
-                if check_completion(usrAns):
-                    st.toast("You Did it!")
+                st.toast("You Failed!")
 
-                    progressionBar = st.empty()
-
-                    progressionBar = st.empty()
-                    progress = 0
-                else:
-                    st.toast("You Failed!")
-
-                    progressionBar = st.empty()
-                
-                    progressionBar = st.empty()
-                    progress = 0
+                progressionBar = st.empty()
+                progress = 0
+                #progressionBar.progress(progress)
 
                 challengeText.empty()
                 st.session_state.internalText = conv_LTS(generateChallengeText(10))
                 usrAns = ""
+
+                check_completion_progress(usrAns)
 
 
 def check_completion_progress(user_text):
@@ -112,7 +123,7 @@ def check_completion_progress(user_text):
 
     if st.session_state.internalText and user_text and user_text != 0:
         internal_words_len = len(st.session_state.internalText.split())
-        user_words_len = len(user_text.split())
+        user_words_len = len(str(user_text).split())
 
         if user_words_len <= internal_words_len:
             progress = int((user_words_len/internal_words_len)*100)
@@ -128,6 +139,16 @@ def capture_user_input():
         usrAns = st.session_state.user_input
         time.sleep(0.1)
 
+
+def handle_user_input():
+
+    global usrAns
+
+    while True:
+        user_text = usrAns
+        check_completion_progress(user_text)
+
+        time.sleep(0.1)
 
 
 #-----------------------
@@ -166,32 +187,38 @@ st.sidebar.markdown("# Typing Test")
 #------------------
 with st.container():
 
+    progressionBar = st.progress(0)
+    progress = 0
+
+with st.container():
+
     usrAns = st.empty()
 
 
     challengeText = st.empty()
     load_ChallengeText()
 
+    usrAnsText = ""
+
+    if "user_input" not in st.session_state:
+        st.session_state["user_input"] = usrAnsText
 
     usrAns = st_keyup("", key="user_input")
 
 
     # Start the thread for capturing user input
     if "user_input_thread" not in st.session_state:
-        st.session_state.user_input_thread = threading.Thread(target=usrAns)
+        st.session_state.user_input_thread = threading.Thread(target=st.session_state.user_input)
         st.session_state.user_input_thread.daemon = True
         st.session_state.user_input_thread.start()
 
 
     retryButton = st.button("Retry")
-    retry_Submit_Logic()
+    retry_Logic()
 
 
     # Displaying Challenge Text
     challengeText.markdown(f"## {st.session_state.internalText}")
 
-    progressionBar = st.progress(0)
-    progress = 0
     check_completion_progress(usrAns)
-    
 

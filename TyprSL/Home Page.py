@@ -57,7 +57,7 @@ topStartButton = st.button(":blue[Start Now] :rocket:",
 
 # typing test redirect button logic
 if topStartButton:
-    switch_page("signup")
+    switch_page("typing test")
 
 
 
