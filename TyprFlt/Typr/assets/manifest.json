@@ -1,7 +1,7 @@
 {
-    "name": "typr",
+    "name": "Typr: Personal Typing Tutor",
     "short_name": "typr",
-    "description": "A minimal Flet app",
+    "description": "A assistive typing tutor/learning service that teachs you how to touch type.",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#ffffff",
