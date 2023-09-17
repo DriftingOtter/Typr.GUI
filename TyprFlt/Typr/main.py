@@ -6,9 +6,11 @@ import stdfunc
 def main(page: ft.Page):
     page.title = "Typr: Your Typing Tutor"
     page.theme = ft.theme.Theme(color_scheme_seed="blue", font_family="Arial")
-    page.scroll = ft.ScrollMode.HIDDEN
+
+    page.vertical_alignment = ft.MainAxisAlignment.SPACE_AROUND
     page.horizontal_alignment = ft.CrossAxisAlignment.CENTER
-    page.vertical_alignment = ft.CrossAxisAlignment.CENTER
+
+    page.scroll = ft.ScrollMode.HIDDEN
     page.navigation_bar = ft.NavigationBar(
         destinations=[
             ft.NavigationDestination(icon=ft.icons.HOME_WORK_ROUNDED, label="Home"),
@@ -21,6 +23,10 @@ def main(page: ft.Page):
             ),
         ]
     )
+
+    hapticFeedback = ft.HapticFeedback()
+    page.overlay.append(hapticFeedback)
+    page.update()
 
     # SOON TO BE ADDED PROGRESS BAR
     # ------------------------------
@@ -45,8 +51,9 @@ def main(page: ft.Page):
 
     global challengeText
     challengeText = ft.Text(
-        f"{str(stdfunc.conv_LTS(stdfunc.generateChallengeText(10)))}",
-        style=ft.TextThemeStyle.DISPLAY_MEDIUM,
+        f"{str(stdfunc.conv_LTS(stdfunc.generateChallengeText(2)))}",
+        text_align=ft.TextAlign.CENTER,
+        style=ft.TextThemeStyle.DISPLAY_LARGE,
     )
     page.add(challengeText)
     page.update()
@@ -75,6 +82,18 @@ def main(page: ft.Page):
 
         print("[COMPELTED] Time Stopped!")
 
+    def manualStop(e):
+        global timeStartState, timeSTOP
+        global usrEntryBox, challengeText
+
+        timeSTOP = time.monotonic()
+        timeStartState = False
+
+        displayResults(calculateResults(usrEntryBox.value, challengeText.value))
+        resetInputs()
+
+        print("[COMPELTED] Test Completed!\n")
+
     def calculateResults(challengeText, usrEntryBox):
         global timeSTAT, timeSTOP
 
@@ -86,10 +105,24 @@ def main(page: ft.Page):
         return results
 
     def displayResults(results):
-        resultRow = ft.Text(
-            f"RESULTS | WPM:{results[2]}, ACC:{results[0]}, TTK:{results[1]}"
+        # resultRow = ft.Text(
+        # f"RESULTS | WPM:{results[2]}, ACC:{results[0]}, TTK:{results[1]}"
+        # )
+        # page.show_snack_bar(ft.SnackBar(resultRow))
+
+        resultsDialogue = ft.AlertDialog(
+            title=ft.Text("Here are your results \U0001F9D9", 
+                          style=ft.TextThemeStyle.DISPLAY_LARGE),
+            content=ft.Text(
+                f"\U0001F680  Words Per Minute: {results[2]}\n\U0001F3AF  Accuracy: {results[0]}%\n\U0001F551  Time Taken: {results[1]}s",
+                style=ft.TextThemeStyle.DISPLAY_MEDIUM,
+            ),
+            on_dismiss=lambda e: print("\n[EVENT] Results Dialog Dismissed"),
         )
-        page.show_snack_bar(ft.SnackBar(resultRow))
+        page.dialog = resultsDialogue
+        resultsDialogue.open = True
+        page.update()
+
         print("[COMPELTED] Results Calculated!")
 
     def resetInputs():
@@ -118,6 +151,8 @@ def main(page: ft.Page):
         print("[COMPELTED] New Text Generated!")
 
     def onUserInput(e):
+        hapticFeedback.medium_impact()
+
         global usrEntryBox, challengeText
         global timeStartState, usrIsTyping
 
@@ -144,7 +179,8 @@ def main(page: ft.Page):
                 resetInputs()
                 print("[COMPELTED] Test Completed!\n")
 
-
+    # FIX BUG WHERE WHEN YOU MANUAL STOP THE TEST, THE ACC IS Only CALCULATING 
+    # FROM WHAT YOU TYPED INSTEAD OF WHOLE TEXT
     def textAcc(usrEntryBox, challengeText):
         usrChars = list(usrEntryBox)
         challengeChars = list(challengeText)
@@ -175,12 +211,25 @@ def main(page: ft.Page):
     def wordsPerMinute(timeTaken, wordCount):
         print(f"    |--> Word Count:{wordCount}")
         wpm = round((wordCount / timeTaken * 100))
+
+        if wpm > 400 or wpm < 0:
+            wpm = "INVALID SCORE"
+
         print(f"    |--> WPM:{wpm}")
         return wpm
 
     global usrEntryBox
-    usrEntryBox = ft.TextField(label="Type the following text.", on_change=onUserInput)
+    usrEntryBox = ft.TextField(label="Type the following text.",
+                               autofocus=True,
+                               autocorrect=False,
+                               enable_suggestions=False,
+                               smart_dashes_type=False,
+                               text_size=20,
+                               on_change=onUserInput,
+                               on_submit=manualStop,
+                               )
     page.add(usrEntryBox)
+    page.update()
 
     def retry_click(e):
         global challengeText, usrEntryBox
@@ -210,4 +259,4 @@ def main(page: ft.Page):
     page.update()
 
 
-ft.app(main)
+ft.app(main, use_color_emoji=True)
