@@ -51,123 +51,140 @@ def main(page: ft.Page):
     page.add(challengeText)
     page.update()
 
-    global usrIsTyping, timeStartState
+    global usrIsTyping, timeStartState, timeSTART, timeSTOP
     usrIsTyping = False
     timeStartState = False
+    timeSTART = float()
+    timeSTOP = float()
 
     def startTyping():
         global usrIsTyping, timeStartState
-        if not usrIsTyping:
-            usrIsTyping = True
-            timeStartState = True
-            print("Time Started!")
+        global timeSTART
 
-    def stopTyping(usrEntryBox, challengeText):
-        global usrIsTyping, timeStartState
-        usrIsTyping = False
+        timeSTART = time.monotonic()
+        usrIsTyping = True
+        timeStartState = True
+        print("\n###############################")
+        print("[COMPELTED] Time Started!")
+
+    def stopTyping():
+        global timeStartState, timeSTOP
+
+        timeSTOP = time.monotonic()
         timeStartState = False
-        timeSTOP = time.time()
-        print("Time Stopped!")
 
-        results = calculateResults(usrEntryBox, challengeText, timeSTOP)
-        displayResults(results)
+        print("[COMPELTED] Time Stopped!")
 
-        resetInputs()
+    def calculateResults(challengeText, usrEntryBox):
+        global timeSTAT, timeSTOP
 
-    def calculateResults(usrEntryBox, challengeText, timeSTOP):
-        timeSTART = time.time()  # Define timeSTART here
-        acc = textAcc(usrEntryBox.value, challengeText.value, len(challengeText.value))
+        acc = textAcc(usrEntryBox, challengeText)
         ttk = timeTaken(timeSTOP, timeSTART)
-        wpm = wordsPerMinute(ttk, len(challengeText.value))
-        results = list(wpm, acc, ttk)
+        wpm = wordsPerMinute(ttk, len(challengeText.split()))
+
+        results = [acc, ttk, wpm]
         return results
 
     def displayResults(results):
         resultRow = ft.Text(
-            f"RESULTS | WPM:{results[0]}, ACC:{results[1]}, TTK:{results[2]}"
+            f"RESULTS | WPM:{results[2]}, ACC:{results[0]}, TTK:{results[1]}"
         )
         page.show_snack_bar(ft.SnackBar(resultRow))
-        print("Results Calculated!")
+        print("[COMPELTED] Results Calculated!")
 
     def resetInputs():
-        usrEntryBox.value = ""
-        challengeText.value = str(stdfunc.conv_LTS(stdfunc.generateChallengeText(10)))
-        page.add(challengeText)
-        page.update()
-        print("New Text Generated!")
+        global challengeText, usrEntryBox
+        global timeStartState, usrIsTyping
+
+        if timeStartState is True or usrIsTyping is True:
+            timeStartState = False
+            usrIsTyping = False
+
+            usrEntryBox.value = ""
+            challengeText.value = str(
+                stdfunc.conv_LTS(stdfunc.generateChallengeText(10))
+            )
+            page.add(challengeText)
+            page.update()
+
+        if timeStartState is False or usrIsTyping is False:
+            usrEntryBox.value = ""
+            challengeText.value = str(
+                stdfunc.conv_LTS(stdfunc.generateChallengeText(10))
+            )
+            page.add(challengeText)
+            page.update()
+
+        print("[COMPELTED] New Text Generated!")
 
     def onUserInput(e):
         global usrEntryBox, challengeText
+        global timeStartState, usrIsTyping
 
         if len(usrEntryBox.value) > 0:
             if not usrIsTyping:
                 startTyping()
             elif timeStartState and not usrIsTyping:
-                stopTyping(usrEntryBox, challengeText)
+                stopTyping()
 
             if len(usrEntryBox.value) > len(challengeText.value):
-                usrEntryBox.error_text = "Incorrect. Try Again!"
+                usrEntryBox.error_text = "Incorrect, Text Too Long. Try Again!"
                 resetInputs()
-                print("Too long :|")
+                print("[COMPELTED] Test Completed!\n")
+
+            if usrEntryBox.value == challengeText.value:
+                stopTyping()
+                displayResults(calculateResults(usrEntryBox.value, challengeText.value))
+                resetInputs()
+                print("[COMPELTED] Test Completed!\n")
 
             if len(usrEntryBox.value) == len(challengeText.value):
-                displayResults(
-                    calculateResults(
-                        usrEntryBox,
-                        challengeText,
-                    )
-                )
+                stopTyping()
+                displayResults(calculateResults(usrEntryBox.value, challengeText.value))
                 resetInputs()
-                print("Test Completed!")
+                print("[COMPELTED] Test Completed!\n")
 
-    def textAcc(plyr_text, displayText, word_count):
-        # Calculates Text Acc
-        textACC = len(set(plyr_text.split()) & set(displayText.split()))
 
-        textACC = int((textACC / word_count) * 100)
+    def textAcc(usrEntryBox, challengeText):
+        usrChars = list(usrEntryBox)
+        challengeChars = list(challengeText)
 
-        return textACC
+        print(f"    |--> User Characters: {usrChars}")
+        print(f"    |--> Challenge Characters: {challengeChars}\n")
 
-    def timeTaken(time_STOP, time_START):
-        # Gather Time Taken
-        timetaken = int(time_STOP - time_START)
+        correctCharCount = sum(
+            usrChar == challengeChar
+            for usrChar, challengeChar in zip(usrChars, challengeChars)
+        )
+        totalCharCount = len(challengeChars)
 
-        return timetaken
+        print(f"    |--> Correct Character Count: {correctCharCount}")
+        print(f"    |--> Total Character Count: {totalCharCount}")
 
-    def wordsPerMinute(timeTaken, word_Count):
-        # Calculates Words Per Minute
-        wordsPerMinute = round((word_Count / timeTaken * 100))
+        textAccuracy = round((correctCharCount / totalCharCount) * 100)
+        print(f"    |--> Text Accuracy: {textAccuracy}%\n")
+        return textAccuracy
 
-        return wordsPerMinute
+    def timeTaken(timeSTOP, timeSTART):
+        print(f"    |--> TIME STARTED:{timeSTART}")
+        print(f"    |--> TIME STOPED:{timeSTOP}")
+        timeTaken = int(timeSTOP - timeSTART)
+        print(f"    |--> Time Taken:{timeTaken}s\n")
+        return timeTaken
+
+    def wordsPerMinute(timeTaken, wordCount):
+        print(f"    |--> Word Count:{wordCount}")
+        wpm = round((wordCount / timeTaken * 100))
+        print(f"    |--> WPM:{wpm}")
+        return wpm
 
     global usrEntryBox
     usrEntryBox = ft.TextField(label="Type the following text.", on_change=onUserInput)
     page.add(usrEntryBox)
 
-    def checkANS_click(e):
-        global userEntryBox, challengeText, usrIsTyping, timeTaken
-
-        if usrEntryBox.value != challengeText.value:
-            usrEntryBox.error_text = "Incorrect. Try Again!"
-            usrEntryBox.value = ""
-            page.update()
-
-            timeTaken = False
-            usrIsTyping = False
-        else:
-            usrEntryBox.value = ""
-            winText = ft.Text("You Did It!")
-            page.show_snack_bar(ft.SnackBar(winText))
-
-            timeTaken = False
-            usrIsTyping = False
-
-    checkBtn = ft.ElevatedButton("Check Answer", on_click=checkANS_click)
-    page.add(checkBtn)
-    page.update()
-
     def retry_click(e):
-        global challengeText, usrEntryBox, timeStartState, usrIsTyping
+        global challengeText, usrEntryBox
+        global timeStartState, usrIsTyping
 
         if timeStartState is True or usrIsTyping is True:
             timeStartState = False
