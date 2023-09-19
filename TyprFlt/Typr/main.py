@@ -80,7 +80,7 @@ def main(page: ft.Page):
                 f"\U0001F680  Words Per Minute: {results[2]}\n\U0001F3AF  Accuracy: {results[0]}%\n\U0001F551  Time Taken: {results[1]}s",
                 style=ft.TextThemeStyle.DISPLAY_MEDIUM,
             ),
-            on_dismiss=lambda e: print("\n[EVENT] Results Dialog Dismissed"),
+            on_dismiss=lambda e: print("[EVENT] Results Dialog Dismissed"),
         )
         page.dialog = resultsDialogue
         resultsDialogue.open = True
@@ -205,6 +205,17 @@ def main(page: ft.Page):
             )
             page.add(challengeText)
             page.update()
+
+    def onTabReset(e: ft.KeyboardEvent):
+        if str(e.key) == "Tab":
+            print("[EVENT] On-Tab Reset Initiated")
+            resetInputs()
+
+    #-----------------------
+    # Enables On 'Tab' Reset
+    #-----------------------
+    page.on_keyboard_event = onTabReset
+
 
     # SOON TO BE ADDED PROGRESS BAR
     # ------------------------------
