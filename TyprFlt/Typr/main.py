@@ -82,18 +82,6 @@ def main(page: ft.Page):
 
         print("[COMPELTED] Time Stopped!")
 
-    def manualStop(e):
-        global timeStartState, timeSTOP
-        global usrEntryBox, challengeText
-
-        timeSTOP = time.monotonic()
-        timeStartState = False
-
-        displayResults(calculateResults(usrEntryBox.value, challengeText.value))
-        resetInputs()
-
-        print("[COMPELTED] Test Completed!\n")
-
     def calculateResults(challengeText, usrEntryBox):
         global timeSTAT, timeSTOP
 
@@ -105,14 +93,11 @@ def main(page: ft.Page):
         return results
 
     def displayResults(results):
-        # resultRow = ft.Text(
-        # f"RESULTS | WPM:{results[2]}, ACC:{results[0]}, TTK:{results[1]}"
-        # )
-        # page.show_snack_bar(ft.SnackBar(resultRow))
-
         resultsDialogue = ft.AlertDialog(
-            title=ft.Text("Here are your results \U0001F9D9", 
-                          style=ft.TextThemeStyle.DISPLAY_LARGE),
+            title=ft.Text(
+                "Here are your results \U0001F9D9",
+                style=ft.TextThemeStyle.DISPLAY_LARGE,
+            ),
             content=ft.Text(
                 f"\U0001F680  Words Per Minute: {results[2]}\n\U0001F3AF  Accuracy: {results[0]}%\n\U0001F551  Time Taken: {results[1]}s",
                 style=ft.TextThemeStyle.DISPLAY_MEDIUM,
@@ -179,9 +164,14 @@ def main(page: ft.Page):
                 resetInputs()
                 print("[COMPELTED] Test Completed!\n")
 
-    # FIX BUG WHERE WHEN YOU MANUAL STOP THE TEST, THE ACC IS Only CALCULATING 
+    # FIX BUG WHERE WHEN YOU MANUAL STOP THE TEST, THE ACC IS Only CALCULATING
     # FROM WHAT YOU TYPED INSTEAD OF WHOLE TEXT
     def textAcc(usrEntryBox, challengeText):
+
+        if len(usrEntryBox) < len(challengeText):
+            textAccuracy = 0
+            return textAccuracy
+
         usrChars = list(usrEntryBox)
         challengeChars = list(challengeText)
 
@@ -200,7 +190,7 @@ def main(page: ft.Page):
         textAccuracy = round((correctCharCount / totalCharCount) * 100)
         print(f"    |--> Text Accuracy: {textAccuracy}%\n")
         return textAccuracy
-
+                                
     def timeTaken(timeSTOP, timeSTART):
         print(f"    |--> TIME STARTED:{timeSTART}")
         print(f"    |--> TIME STOPED:{timeSTOP}")
@@ -219,15 +209,15 @@ def main(page: ft.Page):
         return wpm
 
     global usrEntryBox
-    usrEntryBox = ft.TextField(label="Type the following text.",
-                               autofocus=True,
-                               autocorrect=False,
-                               enable_suggestions=False,
-                               smart_dashes_type=False,
-                               text_size=20,
-                               on_change=onUserInput,
-                               on_submit=manualStop,
-                               )
+    usrEntryBox = ft.TextField(
+        label="Type the following text.",
+        autofocus=True,
+        autocorrect=False,
+        enable_suggestions=False,
+        smart_dashes_type=False,
+        text_size=20,
+        on_change=onUserInput,
+    )
     page.add(usrEntryBox)
     page.update()
 
