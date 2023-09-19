@@ -4,6 +4,9 @@ import stdfunc
 
 
 def main(page: ft.Page):
+    # ----------------------------------
+    # PAGE INITALIZE SETTINGS & CONFIGS
+    # ----------------------------------
     page.title = "Typr: Your Typing Tutor"
     page.theme = ft.theme.Theme(color_scheme_seed="blue", font_family="Arial")
 
@@ -18,46 +21,21 @@ def main(page: ft.Page):
                 icon=ft.icons.LIBRARY_BOOKS_ROUNDED, label="Lessons"
             ),
             ft.NavigationDestination(
-                icon=ft.icons.ACCOUNT_CIRCLE_ROUNDED,
-                label="Profile",
+                icon=ft.icons.ACCOUNT_CIRCLE_ROUNDED, label="Profile"
             ),
         ]
     )
 
+    # -------------------------------------------
+    # Enabling Haptic Support For Mobile Devices
+    # -------------------------------------------
     hapticFeedback = ft.HapticFeedback()
     page.overlay.append(hapticFeedback)
     page.update()
 
-    # SOON TO BE ADDED PROGRESS BAR
-    # ------------------------------
-    # def check_completion_progress():
-    # global usrEntryBox, challengeText, textCompletionBar
-
-    # if usrEntryBox.value is not None and challengeText.value is not None:
-
-    #   if len(usrEntryBox.value) != 0 and len(challengeText.value) != 0:
-    #      internal_words_len = len(challengeText.value.split())
-    #     user_words_len = len(challengeText.value.split())
-
-    #    if user_words_len <= internal_words_len:
-    #       progress = int((user_words_len/internal_words_len)*100)
-
-    # textCompletionBar.value(progress)
-
-    # textCompletionBar = ft.ProgressBar()
-    # textCompletionBar.value = 0
-    # page.add(textCompletionBar)
-    # page.update()
-
-    global challengeText
-    challengeText = ft.Text(
-        f"{str(stdfunc.conv_LTS(stdfunc.generateChallengeText(2)))}",
-        text_align=ft.TextAlign.CENTER,
-        style=ft.TextThemeStyle.DISPLAY_LARGE,
-    )
-    page.add(challengeText)
-    page.update()
-
+    # --------------------------------------------
+    # GLOBAL VARIABLES | IMPORTANT FOR TYPING TEST
+    # --------------------------------------------
     global usrIsTyping, timeStartState, timeSTART, timeSTOP
     usrIsTyping = False
     timeStartState = False
@@ -164,10 +142,7 @@ def main(page: ft.Page):
                 resetInputs()
                 print("[COMPELTED] Test Completed!\n")
 
-    # FIX BUG WHERE WHEN YOU MANUAL STOP THE TEST, THE ACC IS Only CALCULATING
-    # FROM WHAT YOU TYPED INSTEAD OF WHOLE TEXT
     def textAcc(usrEntryBox, challengeText):
-
         if len(usrEntryBox) < len(challengeText):
             textAccuracy = 0
             return textAccuracy
@@ -190,7 +165,7 @@ def main(page: ft.Page):
         textAccuracy = round((correctCharCount / totalCharCount) * 100)
         print(f"    |--> Text Accuracy: {textAccuracy}%\n")
         return textAccuracy
-                                
+
     def timeTaken(timeSTOP, timeSTART):
         print(f"    |--> TIME STARTED:{timeSTART}")
         print(f"    |--> TIME STOPED:{timeSTOP}")
@@ -207,19 +182,6 @@ def main(page: ft.Page):
 
         print(f"    |--> WPM:{wpm}")
         return wpm
-
-    global usrEntryBox
-    usrEntryBox = ft.TextField(
-        label="Type the following text.",
-        autofocus=True,
-        autocorrect=False,
-        enable_suggestions=False,
-        smart_dashes_type=False,
-        text_size=20,
-        on_change=onUserInput,
-    )
-    page.add(usrEntryBox)
-    page.update()
 
     def retry_click(e):
         global challengeText, usrEntryBox
@@ -243,6 +205,49 @@ def main(page: ft.Page):
             )
             page.add(challengeText)
             page.update()
+
+    # SOON TO BE ADDED PROGRESS BAR
+    # ------------------------------
+    # def check_completion_progress():
+    # global usrEntryBox, challengeText, textCompletionBar
+
+    # if usrEntryBox.value is not None and challengeText.value is not None:
+
+    #   if len(usrEntryBox.value) != 0 and len(challengeText.value) != 0:
+    #      internal_words_len = len(challengeText.value.split())
+    #     user_words_len = len(challengeText.value.split())
+
+    #    if user_words_len <= internal_words_len:
+    #       progress = int((user_words_len/internal_words_len)*100)
+
+    # textCompletionBar.value(progress)
+
+    # textCompletionBar = ft.ProgressBar()
+    # textCompletionBar.value = 0
+    # page.add(textCompletionBar)
+    # page.update()
+
+    global challengeText
+    challengeText = ft.Text(
+        f"{str(stdfunc.conv_LTS(stdfunc.generateChallengeText(2)))}",
+        text_align=ft.TextAlign.CENTER,
+        style=ft.TextThemeStyle.DISPLAY_LARGE,
+    )
+    page.add(challengeText)
+    page.update()
+
+    global usrEntryBox
+    usrEntryBox = ft.TextField(
+        label="Type the following text.",
+        autofocus=True,
+        autocorrect=False,
+        enable_suggestions=False,
+        smart_dashes_type=False,
+        text_size=20,
+        on_change=onUserInput,
+    )
+    page.add(usrEntryBox)
+    page.update()
 
     retryBtn = ft.ElevatedButton("Retry", on_click=retry_click)
     page.add(retryBtn)
