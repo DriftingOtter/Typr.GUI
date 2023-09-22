@@ -200,11 +200,10 @@ def main(page: ft.Page):
             resetInputs()
             print("[EVENT] On-Tab Reset Initiated")
 
-    #-----------------------
+    # -----------------------
     # Enables On 'Tab' Reset
-    #-----------------------
+    # -----------------------
     page.on_keyboard_event = onTabReset
-
 
     # SOON TO BE ADDED PROGRESS BAR
     # ------------------------------
