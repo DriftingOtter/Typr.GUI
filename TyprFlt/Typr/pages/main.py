@@ -14,17 +14,6 @@ def main(page: ft.Page):
     page.horizontal_alignment = ft.CrossAxisAlignment.CENTER
 
     page.scroll = ft.ScrollMode.HIDDEN
-    page.navigation_bar = ft.NavigationBar(
-        destinations=[
-            ft.NavigationDestination(icon=ft.icons.HOME_WORK_ROUNDED, label="Home"),
-            ft.NavigationDestination(
-                icon=ft.icons.LIBRARY_BOOKS_ROUNDED, label="Lessons"
-            ),
-            ft.NavigationDestination(
-                icon=ft.icons.ACCOUNT_CIRCLE_ROUNDED, label="Profile"
-            ),
-        ]
-    )
 
     # -------------------------------------------
     # Enabling Haptic Support For Mobile Devices
@@ -208,8 +197,8 @@ def main(page: ft.Page):
 
     def onTabReset(e: ft.KeyboardEvent):
         if str(e.key) == "Tab":
-            print("[EVENT] On-Tab Reset Initiated")
             resetInputs()
+            print("[EVENT] On-Tab Reset Initiated")
 
     #-----------------------
     # Enables On 'Tab' Reset
@@ -265,4 +254,4 @@ def main(page: ft.Page):
     page.update()
 
 
-ft.app(main, use_color_emoji=True)
+ft.app(target=main, use_color_emoji=True)
