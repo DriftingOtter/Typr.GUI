@@ -3,6 +3,9 @@ from views import views_event_handler
 
 
 def main(page: ft.Page):
+    # =============================
+    # Route Change Event Handeling
+    # =============================
     def route_change(route):
         print(f"Current Page Route:{page.route}")
         page.views.clear()
@@ -13,4 +16,3 @@ def main(page: ft.Page):
 
 
 ft.app(target=main, use_color_emoji=True)
-
