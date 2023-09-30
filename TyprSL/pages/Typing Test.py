@@ -6,18 +6,16 @@ import time
 import threading
 
 
-
-#---------------------------------
+# ---------------------------------
 # Random Challenge Text Generation
-#---------------------------------
+# ---------------------------------
 def generateChallengeText(numOfWords):
-
     wordList = "/home/daksh/Documents/Typr/WordLists/Loki_Word_List_EN.txt"
     challengeText = []
 
     with open(wordList, "r") as currentText:
         lines = currentText.readlines()
-        
+
     numLines = len(lines)
 
     for words in range(numOfWords):
@@ -27,7 +25,7 @@ def generateChallengeText(numOfWords):
     return challengeText
 
 
-def conv_LTS(lst): # Converts The Generated ChallengeText List -> String
+def conv_LTS(lst):  # Converts The Generated ChallengeText List -> String
     strText = " ".join([str(elem) for elem in lst])
     strText = strText.translate({ord(c): " " for c in string.whitespace})
 
@@ -49,7 +47,6 @@ def check_completion(user_text):
         internal_words = st.session_state.internalText.split()
         user_words = user_text.split()
 
-
         if len(internal_words) != len(user_words):
             return False
 
@@ -57,12 +54,10 @@ def check_completion(user_text):
             if internal_words[i] != user_words[i]:
                 return False
 
-        
         return True
 
 
 def retry_Logic():
-
     global usrAns, progress, progressionBar, usrAnsText
 
     if retryButton:
@@ -71,44 +66,39 @@ def retry_Logic():
 
         challengeText.empty()
         st.session_state.internalText = conv_LTS(generateChallengeText(10))
-       
+
         usrAnsText = ""
 
         check_completion_progress(usrAns)
 
     else:
-
         submit_Logic()
 
 
 def submit_Logic():
-
     global usrAns, progress, progressionBar
 
     if usrAns and (len(usrAns) >= len(st.session_state.internalText)):
-        if len(usrAns) != len(st.session_state.internalText): #type: ignore
-
+        if len(usrAns) != len(st.session_state.internalText):  # type: ignore
             st.toast("You Failed!")
 
             progressionBar = st.empty()
             progress = 0
-            #progressionBar.progress(progress)
+            # progressionBar.progress(progress)
 
         else:
             if check_completion(usrAns):
-
                 st.toast("You Did it!")
 
                 progressionBar = st.empty()
                 progress = 0
-                #progressionBar.progress(progress)
-            else:                    
-
+                # progressionBar.progress(progress)
+            else:
                 st.toast("You Failed!")
 
                 progressionBar = st.empty()
                 progress = 0
-                #progressionBar.progress(progress)
+                # progressionBar.progress(progress)
 
                 challengeText.empty()
                 st.session_state.internalText = conv_LTS(generateChallengeText(10))
@@ -118,7 +108,6 @@ def submit_Logic():
 
 
 def check_completion_progress(user_text):
-
     global progressionBar, progress
 
     if st.session_state.internalText and user_text and user_text != 0:
@@ -126,13 +115,12 @@ def check_completion_progress(user_text):
         user_words_len = len(str(user_text).split())
 
         if user_words_len <= internal_words_len:
-            progress = int((user_words_len/internal_words_len)*100)
+            progress = int((user_words_len / internal_words_len) * 100)
 
         progressionBar.progress(progress)
 
 
 def capture_user_input():
-    
     global usrAns
 
     while True:
@@ -141,7 +129,6 @@ def capture_user_input():
 
 
 def handle_user_input():
-
     global usrAns
 
     while True:
@@ -151,16 +138,15 @@ def handle_user_input():
         time.sleep(0.1)
 
 
-#-----------------------
+# -----------------------
 # Pages / Sidebar Config
-#-----------------------
-st.set_page_config(page_title="Typr - Typing Test",
-                   page_icon=":keyboard:",
-                   initial_sidebar_state="collapsed",
-                   menu_items={
-                       'About':  
-
-"""# Typr - About Me
+# -----------------------
+st.set_page_config(
+    page_title="Typr - Typing Test",
+    page_icon=":keyboard:",
+    initial_sidebar_state="collapsed",
+    menu_items={
+        "About": """# Typr - About Me
 
 Typr was built as my final High-School CS Project. It is
 was made to make learning touch typing a less daunting
@@ -170,30 +156,28 @@ I personally learned it with some struggles and would have
 loved to have a service like this :)
 
 I hope you enjoy using it!"""
-    })
+    },
+)
 
 
-#----------------------
+# ----------------------
 # Inital Page Setup
-#----------------------
-#st.markdown("# Typing Test :keyboard:")
+# ----------------------
+# st.markdown("# Typing Test :keyboard:")
 st.sidebar.markdown("# Typing Test")
 
-#st.divider()
+# st.divider()
 
 
-#------------------
+# ------------------
 # Page Content
-#------------------
+# ------------------
 with st.container():
-
     progressionBar = st.progress(0)
     progress = 0
 
 with st.container():
-
     usrAns = st.empty()
-
 
     challengeText = st.empty()
     load_ChallengeText()
@@ -205,20 +189,18 @@ with st.container():
 
     usrAns = st_keyup("", key="user_input")
 
-
     # Start the thread for capturing user input
     if "user_input_thread" not in st.session_state:
-        st.session_state.user_input_thread = threading.Thread(target=st.session_state.user_input)
+        st.session_state.user_input_thread = threading.Thread(
+            target=st.session_state.user_input
+        )
         st.session_state.user_input_thread.daemon = True
         st.session_state.user_input_thread.start()
 
-
     retryButton = st.button("Retry")
     retry_Logic()
-
 
     # Displaying Challenge Text
     challengeText.markdown(f"## {st.session_state.internalText}")
 
     check_completion_progress(usrAns)
-
