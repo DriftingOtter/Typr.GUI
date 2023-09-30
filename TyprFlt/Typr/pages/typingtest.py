@@ -8,6 +8,18 @@ class Typing(ft.UserControl):
         super().__init__()
 
         self.page = page
+        self.page.title = "Typr: Your Personal Typing Tutor"
+
+        self.page.theme = ft.theme.Theme(
+            color_scheme_seed="blue",
+            font_family="JetBrainsMono Nerd Font, Arial",
+        )
+
+        self.page.vertical_alignment = ft.MainAxisAlignment.SPACE_AROUND
+        self.page.horizontal_alignment = ft.CrossAxisAlignment.CENTER
+
+        self.page.scroll = ft.ScrollMode.HIDDEN
+
         self.timeStartState = False
         self.usrIsTyping = False
         self.timeSTART = float()
@@ -31,6 +43,10 @@ class Typing(ft.UserControl):
         self.returnBtn = ft.ElevatedButton(
             "Go To Home Page",
             on_click=lambda _: self.page.go("/"),
+        )
+
+        self.typingComp = ft.SafeArea(
+            self.challengeText, self.usrEntryBox, self.returnBtn
         )
 
         # -----------------------
@@ -84,6 +100,7 @@ class Typing(ft.UserControl):
             )
             self.page.add(self.challengeText)
             self.page.update()
+
         if self.timeStartState is False or self.usrIsTyping is False:
             self.usrEntryBox.value = ""
             self.challengeText.value = str(
@@ -91,6 +108,7 @@ class Typing(ft.UserControl):
             )
             self.page.add(self.challengeText)
             self.page.update()
+
         print("[COMPLETED] New Text Generated!")
 
     def onUserInput(self, e):
@@ -188,8 +206,8 @@ class Typing(ft.UserControl):
 
     def onTabReset(self, e: ft.KeyboardEvent):
         if str(e.key) == "Tab":
-            self.resetInputs()
             print("[EVENT] On-Tab Reset Initiated")
+            self.resetInputs()
 
     def build(self):
         return ft.Column(
