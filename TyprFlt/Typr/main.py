@@ -25,4 +25,4 @@ def main(page: ft.Page):
     page.go("/")
 
 
-ft.app(target=main, use_color_emoji=True)
+ft.app(target=main)

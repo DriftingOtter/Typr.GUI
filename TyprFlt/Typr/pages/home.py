@@ -1,6 +1,5 @@
 import flet as ft
 
-
 class Home(ft.UserControl):
     def __init__(self, page):
         super().__init__()
@@ -46,9 +45,19 @@ class Home(ft.UserControl):
             vertical_alignment=ft.CrossAxisAlignment.CENTER,
         )
 
-        self.typingForwarderBtn = ft.ElevatedButton(
-            "Go To Typing Page",
-            on_click=lambda _: self.page.go("/typingtest"),
+        #self.typingForwarderBtn = ft.ElevatedButton(
+            #"Go To Typing Page",
+            #on_click=lambda _: self.page.go("/typingtest"),
+        #)
+
+        self.signupBtn = ft.ElevatedButton(
+            "Signup",
+            on_click=lambda _: self.page.go("/signup"),
+        )
+
+        self.loginBtn = ft.ElevatedButton(
+            "Login",
+            on_click=lambda _: self.page.go("/login"),
         )
 
         self.whyUseTyprHeading = ft.Text(
@@ -127,9 +136,9 @@ class Home(ft.UserControl):
             controls=[
                 self.pageHeader,
                 ft.Container(padding=10),
+                self.signupBtn,
                 ft.Divider(),
-                ft.Container(padding=10),
-                self.typingForwarderBtn,
+                self.loginBtn,
                 ft.Container(padding=15),
                 self.whyUseTyprHeading,
                 ft.Container(padding=10),
