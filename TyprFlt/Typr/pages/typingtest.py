@@ -10,11 +10,6 @@ class Typing(ft.UserControl):
         self.page = page
         self.page.title = "Typr: Your Personal Typing Tutor"
 
-        self.page.theme = ft.theme.Theme(
-            color_scheme_seed="blue",
-            font_family="JetBrainsMono Nerd Font, Arial",
-        )
-
         self.page.vertical_alignment = ft.MainAxisAlignment.SPACE_AROUND
         self.page.horizontal_alignment = ft.CrossAxisAlignment.CENTER
 
@@ -91,13 +86,17 @@ class Typing(ft.UserControl):
         print("[COMPLETED] Results Calculated!")
 
     def resetInputs(self):
+
+        global usrEntryBox, challengeText
+
         if self.timeStartState is True or self.usrIsTyping is True:
             self.timeStartState = False
             self.usrIsTyping = False
             self.usrEntryBox.value = ""
-            self.challengeText.value = str(
-                pages.stdfunc.conv_LTS(pages.stdfunc.generateChallengeText(10))
-            )
+            
+            buffer: str = str(pages.stdfunc.conv_LTS(pages.stdfunc.generateChallengeText(10)))
+
+            self.challengeText.value = str(buffer)
             self.page.add(self.challengeText)
             self.page.update()
 

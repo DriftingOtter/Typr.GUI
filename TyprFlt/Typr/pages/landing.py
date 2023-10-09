@@ -1,16 +1,11 @@
 import flet as ft
 
-class Home(ft.UserControl):
+class Landing(ft.UserControl):
     def __init__(self, page):
         super().__init__()
         self.page = page
 
         page.title = "Typr: Your Personal Typing Tutor"
-
-        page.theme = ft.theme.Theme(
-            color_scheme_seed="blue",
-            font_family="JetBrainsMono Nerd Font, Arial",
-        )
 
         page.vertical_alignment = ft.MainAxisAlignment.SPACE_AROUND
         page.horizontal_alignment = ft.CrossAxisAlignment.CENTER

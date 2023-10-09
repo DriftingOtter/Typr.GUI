@@ -8,11 +8,6 @@ class Login(ft.UserControl):
 
         page.title = "Typr: Your Personal Typing Tutor"
 
-        page.theme = ft.theme.Theme(
-            color_scheme_seed="blue",
-            font_family="JetBrainsMono Nerd Font, Arial",
-        )
-
         page.horizontal_alignment = ft.CrossAxisAlignment.CENTER
         page.vertical_alignment = ft.MainAxisAlignment.CENTER
 
@@ -84,6 +79,8 @@ class Login(ft.UserControl):
             enable_suggestions=False,
             smart_dashes_type=False,
             text_size=20,
+            password=True,
+            can_reveal_password=True
         )
 
         self.signupBtn = ft.ElevatedButton(
@@ -142,17 +139,9 @@ class Login(ft.UserControl):
                 ),
             ],
         )
-        self.pageContent.padding = ft.padding.symmetric(
-                int(self.page.window_height)/1.5,
-                int(self.page.window_width)/1.5,
-        )
         self.pageContent.alignment = ft.alignment.center
 
     def page_resize(self, e):
-        self.pageContent.padding = ft.padding.symmetric(
-                int(self.page.window_height)/1.5,
-                int(self.page.window_width)/1.5,
-        )
         self.pageContent.alignment = ft.alignment.center
 
     def build(self):

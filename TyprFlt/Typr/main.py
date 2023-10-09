@@ -3,10 +3,15 @@ from views import views_event_handler
 
 
 def main(page: ft.Page):
+
+    theme = ft.Theme()
+
     page.theme = ft.theme.Theme(
-            color_scheme_seed="blue",
-            font_family="JetBrainsMono Nerd Font, Arial",
+            color_scheme_seed="#33bef4",
         )
+
+    theme.page_transitions = ft.PageTransitionTheme.FADE_UPWARDS
+    page.theme_mode = ft.ThemeMode.DARK
 
     page.vertical_alignment = ft.MainAxisAlignment.SPACE_AROUND
     page.horizontal_alignment = ft.CrossAxisAlignment.CENTER

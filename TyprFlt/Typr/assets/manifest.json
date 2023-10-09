@@ -4,8 +4,8 @@
     "description": "A assistive typing tutor/learning service that teachs you how to touch type.",
     "start_url": ".",
     "display": "standalone",
-    "background_color": "#ffffff",
-    "theme_color": "#0175C2",
+    "background_color": "#1a1a1ac",
+    "theme_color": "#f53435",
     "orientation": "natural",
     "prefer_related_applications": false,
     "icons": [
