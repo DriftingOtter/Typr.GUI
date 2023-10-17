@@ -138,11 +138,20 @@ def displayUserScore(testResults):
                     )
             )
 
+        elif testResults[3].strip() != testResults[4].strip() and testResults[3] != "":
+
+            print(
+                    Panel(
+                        f"[bold green]Accuracy: [/]{testResults[0]}%\n[bold yellow]Time Taken: [/]{testResults[1]}s\n[bold purple]Words Per Minute: [/]{testResults[2]}",
+                        title="[bold italic red]Nice Try! Some Mistakes There Though, Wanna Do Another ?[/]",
+                    )
+            )
+
         else:
             print(
                     Panel(
                         '"Practice makes perfect" - Some one smart.',
-                        title="[bold italic red]Nice Try! Some Mistakes There Though, Wanna Do Another ?[/]",
+                        title="[bold italic yellow]Test Invalid, try again.[/]",
                     )
                 )
         
