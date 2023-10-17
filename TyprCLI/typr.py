@@ -64,14 +64,14 @@ def displayChallengeText(challengeText):
 def test():
     global time_START, time_STOP, plyr_response
 
-    time_START = time.time()
+    time_START = time.monotonic()
 
     try:
         plyr_response = console.input("[bold blue]> [/]")
     except KeyboardInterrupt:
         sys.exit()
 
-    time_STOP = time.time()
+    time_STOP = time.monotonic()
 
     testResults = [time_START, time_STOP, str(plyr_response)]
 
@@ -135,7 +135,7 @@ def displayUserScore(testResults):
             print(
                 Panel(
                     f"[bold green]Accuracy: [/]{testResults[0]}%\n[bold yellow]Time Taken: [/]{testResults[1]}s\n[bold purple]Words Per Minute: [/]{testResults[2]}",
-                    title="[bold italic green]You Did It ! Wanna Do Another ?[/]",
+                    title="[bold italic green]You Did It! Wanna Do Another ?[/]",
                 )
             )
 
