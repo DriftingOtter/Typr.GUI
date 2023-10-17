@@ -12,7 +12,6 @@ from rich.panel import Panel
 from rich.console import Console
 
 
-
 # Enables Console From Rich
 console = Console()
 install()
@@ -42,6 +41,7 @@ def generateChallengeText(numOfWords):
     return challengeText
 
 
+
 # Converts The Generated ChallengeText List -> String
 def conv_LTS(lst):
     strText = " ".join([str(elem) for elem in lst])
@@ -53,16 +53,15 @@ def conv_LTS(lst):
 
 def displayChallengeText(challengeText):
     print(
-            Panel(
-                challengeText,
-                title="[bold italic]Typr[/]",
-            )
+        Panel(
+            challengeText,
+            title="[bold italic]Typr[/]",
+        )
     )
 
 
 
 def test():
-
     global time_START, time_STOP, plyr_response
 
     time_START = time.time()
@@ -82,13 +81,15 @@ def test():
 
 def accuracy(plyr_response, challengeText):
     try:
-        correctWords = sum(1 for word in plyr_response.split() if word in challengeText.split())
+        correctWords = sum(
+            1 for word in plyr_response.split() if word in challengeText.split()
+        )
         totalWords = len(challengeText.split())
         accuracyPercentage: int = int((correctWords / totalWords) * 100)
     except ZeroDivisionError:
         accuracyPercentage = "INVALID"
 
-    return accuracyPercentage 
+    return accuracyPercentage
 
 
 
@@ -128,35 +129,35 @@ def calculateResults(testResults, challengeText):
 
 def displayUserScore(testResults):
     try:
-        os.system('clear')
+        os.system("clear")
 
         if testResults[3].strip() == testResults[4].strip() and testResults[3] != "":
             print(
-                    Panel(
-                        f"[bold green]Accuracy: [/]{testResults[0]}%\n[bold yellow]Time Taken: [/]{testResults[1]}s\n[bold purple]Words Per Minute: [/]{testResults[2]}",
-                        title="[bold italic green]You Did It ! Wanna Do Another ?[/]",
-                    )
+                Panel(
+                    f"[bold green]Accuracy: [/]{testResults[0]}%\n[bold yellow]Time Taken: [/]{testResults[1]}s\n[bold purple]Words Per Minute: [/]{testResults[2]}",
+                    title="[bold italic green]You Did It ! Wanna Do Another ?[/]",
+                )
             )
 
         elif testResults[3].strip() != testResults[4].strip() and testResults[3] != "":
-
             print(
-                    Panel(
-                        f"[bold green]Accuracy: [/]{testResults[0]}%\n[bold yellow]Time Taken: [/]{testResults[1]}s\n[bold purple]Words Per Minute: [/]{testResults[2]}",
-                        title="[bold italic red]Nice Try! Some Mistakes There Though, Wanna Do Another ?[/]",
-                    )
+                Panel(
+                    f"[bold green]Accuracy: [/]{testResults[0]}%\n[bold yellow]Time Taken: [/]{testResults[1]}s\n[bold purple]Words Per Minute: [/]{testResults[2]}",
+                    title="[bold italic red]Nice Try! Some Mistakes There Though, Wanna Do Another ?[/]",
+                )
             )
 
         else:
             print(
-                    Panel(
-                        '"Practice makes perfect" - Some one smart.',
-                        title="[bold italic yellow]Test Invalid, try again.[/]",
-                    )
+                Panel(
+                    '"Practice makes perfect" - Some one smart.',
+                    title="[bold italic yellow]Test Invalid, try again.[/]",
                 )
-        
+            )
+
     except KeyboardInterrupt:
         sys.exit()
+
 
 
 if __name__ == "__main__":
@@ -165,4 +166,3 @@ if __name__ == "__main__":
     challengeText = conv_LTS(generateChallengeText(10))
     displayChallengeText(challengeText)
     displayUserScore(calculateResults(test(), challengeText))
-    
