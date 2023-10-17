@@ -1,195 +1,159 @@
 #!/usr/bin/python
 
-# ======================
-# Imports
-# ======================
 import sys
-import random
 import string
+import random
 import time
 import os
 
-from rich.traceback import install
 from rich import print
+from rich.traceback import install
 from rich.panel import Panel
-from rich.console import Group
 from rich.console import Console
 
 
-# ==========================
+
 # Enables Console From Rich
-# ==========================
 console = Console()
-
-
-# =======================
-# Enables Rich Traceback
-# =======================
 install()
 
 
-# ============================
-# Applicaton Global Variables
-# ============================
+
 time_START = float()
 time_STOP = float()
-internalText = []
-displayText = []
-wordList = "/home/daksh/Documents/Typr/WordLists/Loki_Word_List_EN.txt"
+challengeText = str()
+plyr_response = str()
 
 
-# ==========================
-# Text Generation Functions
-# ==========================
-def generateChallengeText():
-    global wordList, displayText, internalText, word_count
 
-    with open(wordList, "r") as currenText:
-        # Reads The Line Number From Text
-        lines = currenText.readlines()
+def generateChallengeText(numOfWords):
+    wordList = "/home/daksh/Documents/Typr/WordLists/Loki_Word_List_EN.txt"
+    challengeText = []
 
-    # makes loop for adding words into the displayText VAR
-    for i in range(0, 10):
-        if i != 10:
-            randomLineGen = random.randint(
-                0, 977
-            )  # the number of words in the word list
-            word = lines[randomLineGen].strip()
-            for character in word:
-                internalText.append(character)
-        else:
-            break
+    with open(wordList, "r") as currentText:
+        lines = currentText.readlines()
 
-    # makes loop for adding words into the displayText VAR
-    for z in range(0, 10):
-        if z != 10:
-            randomLineGen = random.randint(
-                0, 977
-            )  # the number of words in the word list
-            displayText.append(lines[randomLineGen])
-        else:
-            break
+    numLines = len(lines)
 
-    # Removes  default array boiler plate
-    displayText = "".join([str(elem) for elem in displayText])
+    for words in range(numOfWords):
+        randomLineGen = random.randint(0, numLines - 1)
+        challengeText.append(lines[randomLineGen].strip())
 
-    # arranges the text into 1 line via removing enter spaces
-    displayText = displayText.translate({ord(c): " " for c in string.whitespace})
+    return challengeText
 
 
-# ======================
-# Display Text Function
-# ======================
-def displayChallengeText():
-    global displayText
+# Converts The Generated ChallengeText List -> String
+def conv_LTS(lst):
+    strText = " ".join([str(elem) for elem in lst])
+    strText = strText.translate({ord(c): " " for c in string.whitespace})
 
+    return str(strText)
+
+
+
+def displayChallengeText(challengeText):
     print(
-        Panel(
-            displayText,
-            title="[bold italic]Typr[/]",
-        )
+            Panel(
+                challengeText,
+                title="[bold italic]Typr[/]",
+            )
     )
 
 
-# ====================
-# User Input Function
-# ====================
-def plyrStart():
-    global time_START, time_STOP, plyr_text
 
-    # Records Start Time
+def test():
+
+    global time_START, time_STOP, plyr_response
+
     time_START = time.time()
 
-    # Records Users Input
     try:
-        plyr_text = console.input("[bold blue]> [/]")
-    except:
-        pass
+        plyr_response = console.input("[bold blue]> [/]")
+    except KeyboardInterrupt:
+        sys.exit()
 
-    # Records Stop Time
     time_STOP = time.time()
 
+    testResults = [time_START, time_STOP, str(plyr_response)]
 
-# ======================
-# Calculation Functions
-# ======================
-def textAcc(plyr_text, displayText, word_count):
-    # Calculates Text Acc
-    textACC = len(set(plyr_text.split()) & set(displayText.split()))
-
-    textACC = int((textACC / word_count) * 100)
-
-    return textACC
+    return testResults
 
 
-def timeTaken(time_STOP, time_START):
-    # Gather Time Taken
-    timetaken = int(time_STOP - time_START)
+
+def accuracy(plyr_response, challengeText):
+    try:
+        correctWords = sum(1 for word in plyr_response.split() if word in challengeText.split())
+        totalWords = len(challengeText.split())
+        accuracyPercentage: int = int((correctWords / totalWords) * 100)
+    except ZeroDivisionError:
+        accuracyPercentage = "INVALID"
+
+    return accuracyPercentage 
+
+
+
+def timeTaken(time_START, time_STOP):
+    try:
+        timetaken = int(time_STOP - time_START)
+    except ZeroDivisionError:
+        timetaken = "INVALID"
 
     return timetaken
 
 
-def wordsPerMinute(time_STOP, time_START, word_Count):
-    # Calculates Time Taken
-    timeTaken = time_STOP - time_START
 
-    # Calculates Words Per Minute
-    wordsPerMinute = round((word_Count / (time_STOP - time_START) * 100))
+def wordsPerMinute(time_START, time_STOP, plyr_response):
+    try:
+        wordsTyped = len(plyr_response.split())
+        timeTakenInMinutes = (time_STOP - time_START) / 60
+        wordsPerMinute = wordsTyped / timeTakenInMinutes
+        wordsPerMinute = round(wordsPerMinute)
+    except ZeroDivisionError:
+        wordsPerMinute = "INVALID"
 
     return wordsPerMinute
 
 
-# ====================
-# Display Users Score
-# ====================
-def displayUserScore():
+
+def calculateResults(testResults, challengeText):
+    wpm = wordsPerMinute(testResults[0], testResults[1], testResults[2])
+    acc = accuracy(testResults[2], challengeText)
+    ttk = timeTaken(testResults[0], testResults[1])
+
+    testResults = [acc, ttk, wpm, testResults[2], challengeText]
+
+    return testResults
+
+
+
+def displayUserScore(testResults):
     try:
-        global plyr_text, displayText, time_STOP, time_START
+        os.system('clear')
 
-        # Checks If User Input Is Same As Printed Text
-        if plyr_text.strip() == displayText.strip() and plyr_text != "":
-            textAccuracy = textAcc(plyr_text, displayText, len((displayText).split()))
-            timeTakenForTest = timeTaken(time_STOP, time_START)
-            wordsPerMin = wordsPerMinute(
-                time_STOP, time_START, len((displayText).split())
-            )
-
+        if testResults[3].strip() == testResults[4].strip() and testResults[3] != "":
             print(
-                Panel(
-                    f"[bold green]Accuracy: [/]{textAccuracy}%\n[bold yellow]Time Taken: [/]{timeTakenForTest}s\n[bold purple]Words Per Minute: [/]{wordsPerMin}",
-                    title="[bold italic green]You Did It ! Wanna Do Another ?[/]",
-                )
-            )
-
-        elif plyr_text.strip() != displayText.strip() and plyr_text != "":
-            textAccuracy = textAcc(plyr_text, displayText, len((displayText).split()))
-            timeTakenForTest = timeTaken(time_STOP, time_START)
-            wordsPerMin = wordsPerMinute(
-                time_STOP, time_START, len((displayText).split())
-            )
-
-            print(
-                Panel(
-                    f"[bold green]Accuracy: [/]{textAccuracy}%\n[bold yellow]Time Taken: [/]{timeTakenForTest}s\n[bold purple]Words Per Minute: [/]{wordsPerMin}",
-                    title="[bold italic red]Nice Try! Some Mistakes There Though, Wanna Do Another ?[/]",
-                )
+                    Panel(
+                        f"[bold green]Accuracy: [/]{testResults[0]}%\n[bold yellow]Time Taken: [/]{testResults[1]}s\n[bold purple]Words Per Minute: [/]{testResults[2]}",
+                        title="[bold italic green]You Did It ! Wanna Do Another ?[/]",
+                    )
             )
 
         else:
             print(
-                Panel(
-                    "[bold red]Invalid Test, No Text Entered.[/]",
-                    title="[bold italic red]ERROR[/]",
+                    Panel(
+                        '"Practice makes perfect" - Some one smart.',
+                        title="[bold italic red]Nice Try! Some Mistakes There Though, Wanna Do Another ?[/]",
+                    )
                 )
-            )
-
-    except:
-        pass
+        
+    except KeyboardInterrupt:
+        sys.exit()
 
 
 if __name__ == "__main__":
-    os.system("clear")  # clears terminal window
-    generateChallengeText()
-    displayChallengeText()
-    plyrStart()
-    displayUserScore()
+    os.system("clear")
+
+    challengeText = conv_LTS(generateChallengeText(10))
+    displayChallengeText(challengeText)
+    displayUserScore(calculateResults(test(), challengeText))
+    
