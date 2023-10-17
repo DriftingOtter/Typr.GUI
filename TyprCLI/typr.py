@@ -5,6 +5,7 @@ import string
 import random
 import time
 import os
+import argparse
 
 from rich import print
 from rich.traceback import install
@@ -25,7 +26,7 @@ plyr_response = str()
 
 
 
-def generateChallengeText(numOfWords):
+def generateChallengeText(numOfWords, wordList):
     wordList = "/home/daksh/Documents/Typr/WordLists/Loki_Word_List_EN.txt"
     challengeText = []
 
@@ -162,37 +163,79 @@ def displayUserScore(testResults):
 
 if __name__ == "__main__":
 
-    # Default Test Word Count
+    os.system("clear")
+
+    # Defaults
     wordCount: int = 10
+    wordList = "/WordLists/Loki_Word_List_EN.txt"
 
-    # Gather script arguments
-    args = sys.argv
 
-    # Checks for args
-    try:
-        if len(args) > 1:
-            if args[1] == "-wc":
-                wordCount = int(args[2])
-            else:
-                raise ValueError("Incorrect argument")
-        else:
-            raise IndexError("Missing argument")
+    # Setting up run time flags for typr
+    parser = argparse.ArgumentParser(description="Typr: A Simple Terminal Typing Test", add_help=False)
+    parser.add_argument("-wc", "--wordcount", type=int, help="Required word count for the test")
+    parser.add_argument("-wl", "--wordlist", help="Path to the word list file")
+    parser.add_argument("-h", "--help", action="store_true", help="Show help message")
 
-    # If there are no ags commands, then don't show error
-    except IndexError:
-        pass
+    args = parser.parse_args()
 
-    # If garbage args are given
-    except ValueError:
+
+    if args.help:
+        os.system('clear')
+
         print(
+            Panel(
+                '''[bold italic blue]Typr: A Simple Terminal Typing Test[/]
+-----------------------------------
+
+[bold purple]>[/] [green]Available Run-Time Flags[/]
+--------------------------
+
+    [italic blue]1.[/] [yellow]-wc[/] <amount> [bold]or[/] [yellow]--wordcount[/] <amount>
+
+    Gives typr a required word count for the test.
+
+
+    [italic blue]2.[/] [yellow]-h[/] [bold]or[/] [yellow]--help[/]
+
+    Shows this help page.
+
+
+    [italic blue]3.[/] [yellow]-wl[/] <file path> [bold]or[/] [yellow]--wordlist[/] <file path>
+
+    Gives typr a wanted word list that you want it to 
+    use to generate the test.
+
+    The file it self must have each word on a separate 
+    line, and should have no additional formatting like 
+    numbers, listing, images, or any extra information 
+    as it will not be able to parse the required data.
+
+    [blue]ex.[/] [italic yellow]"/home/user/word_list.txt"[/]''',
+                title="[bold italic blue]Typr: Manual[/]",
+            )
+        )
+        exit()
+
+
+    if args.wordcount:
+        wordCount = args.wordcount
+
+
+    if args.wordlist:
+        if os.path.exists(args.wordlist):
+            wordList = args.wordlist
+        else:
+            os.system('clear')
+
+            print(
                 Panel(
-                    "Incorrect flag given. Please try the '-h' flag to check avalible flags.",
+                    "Incorrect Words List Path Given",
                     title="[bold italic red]Invalid Arguments.[/]",
                 )
             )
+            exit()
 
-    os.system("clear")
 
-    challengeText = conv_LTS(generateChallengeText(wordCount))
+    challengeText = conv_LTS(generateChallengeText(wordCount, wordList))
     displayChallengeText(challengeText)
     displayUserScore(calculateResults(test(), challengeText))
