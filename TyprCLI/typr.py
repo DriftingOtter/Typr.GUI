@@ -161,8 +161,38 @@ def displayUserScore(testResults):
 
 
 if __name__ == "__main__":
+
+    # Default Test Word Count
+    wordCount: int = 10
+
+    # Gather script arguments
+    args = sys.argv
+
+    # Checks for args
+    try:
+        if len(args) > 1:
+            if args[1] == "-wc":
+                wordCount = int(args[2])
+            else:
+                raise ValueError("Incorrect argument")
+        else:
+            raise IndexError("Missing argument")
+
+    # If there are no ags commands, then don't show error
+    except IndexError:
+        pass
+
+    # If garbage args are given
+    except ValueError:
+        print(
+                Panel(
+                    "Incorrect flag given. Please try the '-h' flag to check avalible flags.",
+                    title="[bold italic red]Invalid Arguments.[/]",
+                )
+            )
+
     os.system("clear")
 
-    challengeText = conv_LTS(generateChallengeText(10))
+    challengeText = conv_LTS(generateChallengeText(wordCount))
     displayChallengeText(challengeText)
     displayUserScore(calculateResults(test(), challengeText))
