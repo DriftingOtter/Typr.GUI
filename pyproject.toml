@@ -1,0 +1,49 @@
+[project]
+name = "Typr"  # Required
+version = "0.0.1"  # Required
+description = "Typr is a Flutter-based app designed for touch typing instruction, promoting typing best practices, optimizing hand and body posture. It offers various typing tests and tracks your progress in a profile section with an SQL database."  # Optional
+readme = "README.md" # Optional
+requires-python = ">=3.10"
+license = {file = "LICENSE.md"}
+keywords = ["sample", "setuptools", "development"]  # Optional
+authors = [
+  {name = "Daksh Kaul", email = "dakshkaul7790@gmail.com" } # Optional
+]
+maintainers = [
+  {name = "Daksh Kaul", email = "dakshkaul7790@gmail.com" } # Optional
+]
+classifiers = [  # Optional
+  # How mature is this project? Common values are
+  #   3 - Alpha
+  #   4 - Beta
+  #   5 - Production/Stable
+  "Development Status :: Stable",
+
+  "Intended Audience :: Linux Users",
+  "Topic :: CLI Applications :: Typing Test Application",
+
+  "License :: OSI Approved :: GPL-3.0 license",
+
+  "Programming Language :: Python :: 3.8",
+  "Programming Language :: Python :: 3.9",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3 :: Only",
+]
+dependencies = [ # Optional
+  "peppercorn",
+  "rich",
+  "flet",
+  "tkinter",
+  "streamlit"
+]
+[project.urls]  # Optional
+"Homepage" = "https://github.com/DriftingOtter/Typr"
+"Bug Reports" = "https://github.com/DriftingOtter/Typr/issues"
+"Funding" = "https://kofi.com/driftingotter"
+[tool.setuptools]
+package-data = {"sample" = ["*.dat"]}
+[build-system]
+requires = ["setuptools>=43.0.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
