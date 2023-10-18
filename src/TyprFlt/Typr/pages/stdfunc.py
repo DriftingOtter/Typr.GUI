@@ -3,7 +3,7 @@ import random
 
 
 def generateChallengeText(numOfWords):
-    wordList = "/home/daksh/Documents/Typr/WordLists/Loki_Word_List_EN.txt"
+    wordList = "/home/daksh/Documents/Typr/src/WordLists/Loki_Word_List_EN.txt"
     challengeText = []
 
     with open(wordList, "r") as currentText:
