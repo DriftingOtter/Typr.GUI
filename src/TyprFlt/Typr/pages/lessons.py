@@ -176,7 +176,7 @@ class Lessons(ft.UserControl):
             )
         )
 
-        self.freeTypingRowCard = ft.Card(
+        self.freeTypingCard = ft.Card(
             content=ft.Container(
                 content=ft.Column(
                     [
@@ -203,6 +203,30 @@ class Lessons(ft.UserControl):
             )
         )
 
+        self.profilePageCard = ft.Card(
+            content=ft.Container(
+                content=ft.Column(
+                    [
+                        ft.ListTile(
+                            leading=ft.Icon(ft.icons.ALBUM),
+                            title=ft.Text("Profile Page", size=20),
+                        ),
+                        ft.Row(
+                            [
+                                ft.ElevatedButton(
+                                    "Go to Profile Page",
+                                    on_click=lambda _: self.page.go("/profile"),
+                                )
+                            ],
+                            alignment=ft.MainAxisAlignment.END,
+                        ),
+                    ]
+                ),
+                width=400,
+                padding=10,
+            )
+        )
+
         self.LessonContainer = ft.ListView(
             controls=[
                 self.homeRowCard,
@@ -215,7 +239,7 @@ class Lessons(ft.UserControl):
                 ft.Container(padding=10),
                 self.punctuationRowCard,
                 ft.Container(padding=10),
-                self.freeTypingRowCard,
+                self.freeTypingCard,
             ]
         )
 
@@ -231,6 +255,10 @@ class Lessons(ft.UserControl):
                 ft.Container(padding=10),
                 ft.Container(self.LessonContainer),
                 ft.Container(padding=10),
+                ft.Divider(thickness=5),
+                ft.Container(padding=10),
+                ft.Container(self.profilePageCard),
+                ft.Container(padding=20),
                 ft.Container(self.returnBtn),
             ],
         )

@@ -1,5 +1,6 @@
 import flet as ft
 
+
 class Landing(ft.UserControl):
     def __init__(self, page):
         super().__init__()
@@ -40,10 +41,10 @@ class Landing(ft.UserControl):
             vertical_alignment=ft.CrossAxisAlignment.CENTER,
         )
 
-        #self.typingForwarderBtn = ft.ElevatedButton(
-            #"Go To Typing Page",
-            #on_click=lambda _: self.page.go("/typingtest"),
-        #)
+        # self.typingForwarderBtn = ft.ElevatedButton(
+        # "Go To Typing Page",
+        # on_click=lambda _: self.page.go("/typingtest"),
+        # )
 
         self.signupBtn = ft.ElevatedButton(
             "Signup",

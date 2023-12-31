@@ -80,7 +80,7 @@ class Signup(ft.UserControl):
             smart_dashes_type=False,
             text_size=20,
             password=True,
-            can_reveal_password=True
+            can_reveal_password=True,
         )
 
         self.signupBtn = ft.ElevatedButton(
@@ -108,12 +108,10 @@ class Signup(ft.UserControl):
                         ),
                         self.emailField,
                     ],
-                alignment=ft.MainAxisAlignment.CENTER,
-                horizontal_alignment=ft.CrossAxisAlignment.STRETCH,
+                    alignment=ft.MainAxisAlignment.CENTER,
+                    horizontal_alignment=ft.CrossAxisAlignment.STRETCH,
                 ),
-
                 ft.Container(padding=5),
-
                 ft.Column(
                     controls=[
                         ft.Row(
@@ -135,7 +133,6 @@ class Signup(ft.UserControl):
                     ],
                     alignment=ft.MainAxisAlignment.CENTER,
                     horizontal_alignment=ft.CrossAxisAlignment.STRETCH,
-
                 ),
             ],
         )
