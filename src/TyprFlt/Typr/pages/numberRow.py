@@ -3,12 +3,12 @@ import pages.stdfunc
 import time
 
 
-class Typing(ft.UserControl):
+class NumberTyping(ft.UserControl):
     def __init__(self, page):
         super().__init__()
 
         self.page = page
-        self.page.title = "Typr: Your Personal Typing Tutor"
+        self.page.title = "Typr: Number Row Lesson"
 
         self.page.vertical_alignment = ft.MainAxisAlignment.SPACE_AROUND
         self.page.horizontal_alignment = ft.CrossAxisAlignment.CENTER
@@ -36,12 +36,22 @@ class Typing(ft.UserControl):
         )
 
         self.returnBtn = ft.ElevatedButton(
-            "Go To Home Page",
-            on_click=lambda _: self.page.go("/"),
+            "Go To Lesson Page",
+            on_click=lambda _: self.page.go("/lessons"),
         )
 
         self.typingComp = ft.SafeArea(
             self.challengeText, self.usrEntryBox, self.returnBtn
+        )
+
+        self.pageContent = ft.ListView(
+            controls=[
+                self.challengeText,
+                ft.Container(padding=10),
+                self.usrEntryBox,
+                ft.Container(padding=10),
+                self.returnBtn,
+            ]
         )
 
         # -----------------------
@@ -86,15 +96,16 @@ class Typing(ft.UserControl):
         print("[COMPLETED] Results Calculated!")
 
     def resetInputs(self):
-
         global usrEntryBox, challengeText
 
         if self.timeStartState is True or self.usrIsTyping is True:
             self.timeStartState = False
             self.usrIsTyping = False
             self.usrEntryBox.value = ""
-            
-            buffer: str = str(pages.stdfunc.conv_LTS(pages.stdfunc.generateChallengeText(10)))
+
+            buffer: str = str(
+                pages.stdfunc.conv_LTS(pages.stdfunc.generateChallengeText(10))
+            )
 
             self.challengeText.value = str(buffer)
             self.page.add(self.challengeText)
@@ -209,16 +220,4 @@ class Typing(ft.UserControl):
             self.resetInputs()
 
     def build(self):
-        return ft.Column(
-            controls=[
-                ft.Container(
-                    content=ft.Column(
-                        controls=[
-                            self.challengeText,
-                            self.usrEntryBox,
-                            self.returnBtn,
-                        ]
-                    )
-                )
-            ]
-        )
+        return self.pageContent

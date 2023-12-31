@@ -85,12 +85,12 @@ class Login(ft.UserControl):
 
         self.signupBtn = ft.ElevatedButton(
             "Signup",
-            on_click=lambda _: self.page.go("/typingtest"),
+            on_click=lambda _: self.page.go("/signup"),
         )
 
         self.loginBtn = ft.ElevatedButton(
             "Login",
-            on_click=lambda _: self.page.go("/login"),
+            on_click=lambda _: self.page.go("/lessons"),
         )
 
         self.pageContent = ft.ListView(
