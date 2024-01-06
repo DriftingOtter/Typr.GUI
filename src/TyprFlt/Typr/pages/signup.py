@@ -1,10 +1,20 @@
 import flet as ft
+from ottrDBM import OttrDBM
 
 
 class Signup(ft.UserControl):
     def __init__(self, page):
         super().__init__()
         self.page = page
+
+        self.dbConfig = {
+            "user": "root",
+            "password": "",
+            "host": "localhost",
+            "database": "typr_acc_info",
+            "raise_on_warnings": True,
+        }
+        self.signupManager = OttrDBM(self.dbConfig)
 
         page.title = "Typr: Your Personal Typing Tutor"
 
@@ -85,7 +95,7 @@ class Signup(ft.UserControl):
 
         self.signupBtn = ft.ElevatedButton(
             "Signup",
-            on_click=lambda _: self.page.go("/lessons"),
+            on_click=signup_event,
         )
 
         self.loginBtn = ft.ElevatedButton(
@@ -93,11 +103,8 @@ class Signup(ft.UserControl):
             on_click=lambda _: self.page.go("/login"),
         )
 
-        self.pageContent = ft.ListView(
+        self.loginFrame = ft.ListView(
             controls=[
-                ft.Container(self.pageHeader),
-                ft.Divider(),
-                ft.Container(padding=5),
                 ft.Column(
                     controls=[
                         ft.Row(
@@ -134,9 +141,32 @@ class Signup(ft.UserControl):
                     alignment=ft.MainAxisAlignment.CENTER,
                     horizontal_alignment=ft.CrossAxisAlignment.STRETCH,
                 ),
+            ]
+        )
+
+        self.pageContent = ft.ListView(
+            controls=[
+                ft.Container(self.pageHeader),
+                ft.Divider(),
+                ft.Container(padding=5),
+                ft.Container(self.loginFrame),
             ],
         )
         self.pageContent.alignment = ft.alignment.center
+
+    def signup_event(self, e):
+        # Gather Usr Information
+        self.email = str(self.emailField.value).strip()
+        self.pwd   = str(self.pwdField.value).strip()
+
+        # Validate & Create New User In DB along with personal DB
+        self.returnValue = OttrDBM.signupManager.createUsers(self.email, self.pwd)
+
+        if self.returnValue == 0:
+            self.page.go("/lessons")
+        else:
+            # Add Error Notification During Error Code
+            pass
 
     def page_resize(self, e):
         self.pageContent.alignment = ft.alignment.center
