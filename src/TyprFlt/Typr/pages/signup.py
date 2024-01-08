@@ -1,5 +1,5 @@
 import flet as ft
-from ottrDBM import OttrDBM
+from .ottrDBM import OttrDBM
 
 
 class Signup(ft.UserControl):
@@ -17,17 +17,12 @@ class Signup(ft.UserControl):
         self.signupManager = OttrDBM(self.dbConfig)
 
         page.title = "Typr: Your Personal Typing Tutor"
-
         page.horizontal_alignment = ft.CrossAxisAlignment.CENTER
         page.vertical_alignment = ft.MainAxisAlignment.CENTER
-
         page.scroll = ft.ScrollMode.HIDDEN
-
         page.on_resize = self.page_resize
 
-        # ==============
         # Page Controls
-        # ==============
         self.pageHeader = ft.Row(
             controls=[
                 ft.Image(
@@ -95,7 +90,7 @@ class Signup(ft.UserControl):
 
         self.signupBtn = ft.ElevatedButton(
             "Signup",
-            on_click=signup_event,
+            on_click=self.signup_event,
         )
 
         self.loginBtn = ft.ElevatedButton(
@@ -155,12 +150,12 @@ class Signup(ft.UserControl):
         self.pageContent.alignment = ft.alignment.center
 
     def signup_event(self, e):
-        # Gather Usr Information
+        # Gather User Information
         self.email = str(self.emailField.value).strip()
-        self.pwd   = str(self.pwdField.value).strip()
+        self.pwd = str(self.pwdField.value).strip()
 
         # Validate & Create New User In DB along with personal DB
-        self.returnValue = OttrDBM.signupManager.createUsers(self.email, self.pwd)
+        self.returnValue = self.signupManager.createUser(self.email, self.pwd)
 
         if self.returnValue == 0:
             self.page.go("/lessons")
@@ -173,3 +168,4 @@ class Signup(ft.UserControl):
 
     def build(self):
         return self.pageContent
+

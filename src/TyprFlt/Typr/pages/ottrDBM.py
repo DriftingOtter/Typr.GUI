@@ -7,8 +7,8 @@ import re
 
 
 class OttrDBM:
-    def __init__(self, db_config):
-        self.config = db_config
+    def __init__(self, dbConfig):
+        self.config = dbConfig
         self.connection = None
 
     def connectToDatabase(self):
@@ -35,21 +35,28 @@ class OttrDBM:
         """
         cursor.execute(createTableQuery)
 
-    def createOrUpdateUserTable(self, cursor, db_name):
-        # Create or update the user's dedicated table if not exists
-        createTableQuery = f"""
-            CREATE TABLE IF NOT EXISTS {db_name} (
-                id INT AUTO_INCREMENT PRIMARY KEY,
-                uid INT,
-                wpm INT,
-                acc INT,
-                ttk INT,
-                testName VARCHAR(4),
-                FOREIGN KEY (uid) REFERENCES users(uid)
-            )
-        """
-        cursor.execute(createTableQuery)
+    def createOrUpdateUserTable(self, cursor, dbName):
+        # Replace hyphens with underscores in the table name
+        sanitizedDbName = dbName.replace("-", "_")
 
+        # Check if 'users' table exists before creating the foreign key
+        cursor.execute("SHOW TABLES LIKE 'users'")
+        if cursor.fetchone():
+            createTableQuery = f"""
+                CREATE TABLE IF NOT EXISTS {sanitizedDbName} (
+                    id INT AUTO_INCREMENT PRIMARY KEY,
+                    uid BIGINT PRIMARY KEY,
+                    wpm INT,
+                    acc INT,
+                    ttk INT,
+                    testName VARCHAR(4),
+                    FOREIGN KEY (uid) REFERENCES users(uid)
+                )
+            """
+            cursor.execute(createTableQuery)
+        else:
+            logging.error("Error: 'users' table does not exist.")
+    
     def isValidEmail(self, email):
         pattern = r"[^@]+@[^@]+\.[^@]+$"
         return re.match(pattern, email) is not None
@@ -97,7 +104,7 @@ class OttrDBM:
                     return 4  # Error code for email already exists
 
                 hashedPassword = hashlib.sha256(password.encode()).hexdigest()
-                userId = int(uuid.uuid4().int)
+                userId = str(uuid.uuid4())
 
                 cursor.execute(
                     "INSERT INTO users (uid, email, password) VALUES (%s, %s, %s)",
@@ -113,8 +120,13 @@ class OttrDBM:
             )
             return 0  # Success
 
+        except Exception as e:
+            logging.error("An error occurred during user creation: %s", str(e))
+            return 5  # Error code for other exceptions
+
         finally:
-            connection.close()
+            if connection:
+                connection.close()
 
     def authenticateUser(self, email, password):
         if not self.isValidEmail(email):
@@ -168,8 +180,13 @@ class OttrDBM:
                     logging.info("User not found.")
                     return 4  # Error code for user not found
 
+        except Exception as e:
+            logging.error("An error occurred during user authentication: %s", str(e))
+            return 5  # Error code for other exceptions
+
         finally:
-            connection.close()
+            if connection:
+                connection.close()
 
 
 # Example Usage:
