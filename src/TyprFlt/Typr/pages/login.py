@@ -1,4 +1,6 @@
 import flet as ft
+import logging
+from .ottrDBM import OttrDBM
 
 
 class Login(ft.UserControl):
@@ -6,18 +8,23 @@ class Login(ft.UserControl):
         super().__init__()
         self.page = page
 
-        page.title = "Typr: Your Personal Typing Tutor"
+        self.dbConfig = {
+            "user": "root",
+            "password": "",
+            "host": "localhost",
+            "database": "typr_acc_info",
+            "raise_on_warnings": True,
+        }
+        self.loginManager = OttrDBM(self.dbConfig)
 
+        logging.basicConfig(level=logging.INFO)
+
+        page.title = "Typr: Your Personal Typing Tutor"
         page.horizontal_alignment = ft.CrossAxisAlignment.CENTER
         page.vertical_alignment = ft.MainAxisAlignment.CENTER
-
         page.scroll = ft.ScrollMode.HIDDEN
-
         page.on_resize = self.page_resize
 
-        # ==============
-        # Page Controls
-        # ==============
         self.pageHeader = ft.Row(
             controls=[
                 ft.Image(
@@ -90,22 +97,14 @@ class Login(ft.UserControl):
 
         self.loginBtn = ft.ElevatedButton(
             "Login",
-            on_click=lambda _: self.page.go("/lessons"),
+            on_click=self.login_event,
         )
 
-        self.pageContent = ft.ListView(
+        self.loginFrame = ft.ListView(
             controls=[
-                ft.Container(self.pageHeader),
-                ft.Divider(),
-                ft.Container(padding=5),
                 ft.Column(
                     controls=[
-                        ft.Row(
-                            controls=[
-                                self.emailIcon,
-                                self.emailHeading,
-                            ]
-                        ),
+                        ft.Row(controls=[self.emailIcon, self.emailHeading]),
                         self.emailField,
                     ],
                     alignment=ft.MainAxisAlignment.CENTER,
@@ -134,9 +133,32 @@ class Login(ft.UserControl):
                     alignment=ft.MainAxisAlignment.CENTER,
                     horizontal_alignment=ft.CrossAxisAlignment.STRETCH,
                 ),
+            ]
+        )
+
+        self.pageContent = ft.ListView(
+            controls=[
+                ft.Container(self.pageHeader),
+                ft.Divider(),
+                ft.Container(padding=5),
+                ft.Container(self.loginFrame),
             ],
         )
         self.pageContent.alignment = ft.alignment.center
+
+    def login_event(self, e):
+        # Gather User Information
+        self.email = str(self.emailField.value).strip()
+        self.pwd = str(self.pwdField.value).strip()
+
+        # Validate & Create New User In DB along with personal DB
+        self.returnValue = self.loginManager.authenticateUser(self.email, self.pwd)
+
+        if self.returnValue == 0:
+            self.page.go("/lessons")
+        else:
+            # Add Error Notification During Error Code
+            pass
 
     def page_resize(self, e):
         self.pageContent.alignment = ft.alignment.center

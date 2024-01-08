@@ -1,4 +1,5 @@
 import flet as ft
+import logging
 from .ottrDBM import OttrDBM
 
 
@@ -15,6 +16,8 @@ class Signup(ft.UserControl):
             "raise_on_warnings": True,
         }
         self.signupManager = OttrDBM(self.dbConfig)
+
+        logging.basicConfig(level=logging.INFO)
 
         page.title = "Typr: Your Personal Typing Tutor"
         page.horizontal_alignment = ft.CrossAxisAlignment.CENTER
@@ -168,4 +171,3 @@ class Signup(ft.UserControl):
 
     def build(self):
         return self.pageContent
-

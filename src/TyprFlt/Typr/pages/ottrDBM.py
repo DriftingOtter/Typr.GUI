@@ -28,9 +28,9 @@ class OttrDBM:
         createTableQuery = """
             CREATE TABLE IF NOT EXISTS users (
                 id INT AUTO_INCREMENT PRIMARY KEY,
-                uid BIGINT,
+                uid VARCHAR(36),
                 email VARCHAR(255) UNIQUE,
-                password VARCHAR(64)
+                password VARCHAR(255)
             )
         """
         cursor.execute(createTableQuery)
@@ -45,7 +45,7 @@ class OttrDBM:
             createTableQuery = f"""
                 CREATE TABLE IF NOT EXISTS {sanitizedDbName} (
                     id INT AUTO_INCREMENT PRIMARY KEY,
-                    uid BIGINT PRIMARY KEY,
+                    uid VARCHAR(36),
                     wpm INT,
                     acc INT,
                     ttk INT,
@@ -56,7 +56,7 @@ class OttrDBM:
             cursor.execute(createTableQuery)
         else:
             logging.error("Error: 'users' table does not exist.")
-    
+
     def isValidEmail(self, email):
         pattern = r"[^@]+@[^@]+\.[^@]+$"
         return re.match(pattern, email) is not None
