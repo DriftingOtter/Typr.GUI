@@ -1,27 +1,24 @@
+import logging
 import flet as ft
-import pages.stdfunc
+from pages.stdfunc import conv_LTS, generateChallengeText
 import time
 
+logging.basicConfig(level=logging.INFO)
 
 class FreeTyping(ft.UserControl):
     def __init__(self, page):
         super().__init__()
 
         self.page = page
-        self.page.title = "Typr: Free Typing / Typing Test"
-
-        self.page.vertical_alignment = ft.MainAxisAlignment.SPACE_AROUND
-        self.page.horizontal_alignment = ft.CrossAxisAlignment.CENTER
-
-        self.page.scroll = ft.ScrollMode.HIDDEN
+        self.initialize_page_settings()
 
         self.timeStartState = False
         self.usrIsTyping = False
-        self.timeSTART = float()
-        self.timeSTOP = float()
+        self.timeSTART = None
+        self.timeSTOP = None
 
         self.challengeText = ft.Text(
-            f"{str(pages.stdfunc.conv_LTS(pages.stdfunc.generateChallengeText(10)))}",
+            str(conv_LTS(generateChallengeText(10))),
             text_align=ft.TextAlign.CENTER,
             style=ft.TextThemeStyle.DISPLAY_LARGE,
         )
@@ -32,7 +29,7 @@ class FreeTyping(ft.UserControl):
             enable_suggestions=False,
             smart_dashes_type=False,
             text_size=20,
-            on_change=self.onUserInput,
+            on_change=self.on_user_input,
         )
 
         self.returnBtn = ft.ElevatedButton(
@@ -54,32 +51,35 @@ class FreeTyping(ft.UserControl):
             ]
         )
 
-        # -----------------------
-        # Enables On 'Tab' Reset
-        # -----------------------
-        self.page.on_keyboard_event = self.onTabReset
+        self.page.on_keyboard_event = self.on_tab_reset
 
-    def startTyping(self):
+    def initialize_page_settings(self):
+        self.page.title = "Typr: Free Typing / Typing Test"
+        self.page.vertical_alignment = ft.MainAxisAlignment.SPACE_AROUND
+        self.page.horizontal_alignment = ft.CrossAxisAlignment.CENTER
+        self.page.scroll = ft.ScrollMode.HIDDEN
+
+    def start_typing(self):
         self.timeSTART = time.monotonic()
         self.usrIsTyping = True
         self.timeStartState = True
-        print("\n###############################")
-        print("[COMPLETED] Time Started!")
+        logging.info("\n###############################")
+        logging.info("[COMPLETED] Time Started!")
 
-    def stopTyping(self):
+    def stop_typing(self):
         self.timeSTOP = time.monotonic()
         self.timeStartState = False
-        print("[COMPLETED] Time Stopped!")
+        logging.info("[COMPLETED] Time Stopped!")
 
-    def calculateResults(self, challengeText, usrEntryBox):
-        acc = self.textAcc(usrEntryBox, challengeText)
-        ttk = self.timeTaken(self.timeSTOP, self.timeSTART)
-        wpm = self.wordsPerMinute(ttk, len(challengeText.split()))
+    def calculate_results(self):
+        acc = self.text_acc()
+        ttk = self.time_taken()
+        wpm = self.words_per_minute(len(self.challengeText.value.split()))
         results = [acc, ttk, wpm]
         return results
 
-    def displayResults(self, results):
-        resultsDialogue = ft.AlertDialog(
+    def display_results(self, results):
+        results_dialogue = ft.AlertDialog(
             title=ft.Text(
                 "Here are your results \U0001F9D9",
                 style=ft.TextThemeStyle.DISPLAY_LARGE,
@@ -88,136 +88,77 @@ class FreeTyping(ft.UserControl):
                 f"\U0001F680  Words Per Minute: {results[2]}\n\U0001F3AF  Accuracy: {results[0]}%\n\U0001F551  Time Taken: {results[1]}s",
                 style=ft.TextThemeStyle.DISPLAY_MEDIUM,
             ),
-            on_dismiss=lambda e: print("[EVENT] Results Dialog Dismissed"),
+            on_dismiss=lambda e: logging.info("[EVENT] Results Dialog Dismissed"),
         )
-        self.page.dialog = resultsDialogue
-        resultsDialogue.open = True
+        self.page.dialog = results_dialogue
+        results_dialogue.open = True
         self.page.update()
-        print("[COMPLETED] Results Calculated!")
+        logging.info("[COMPLETED] Results Calculated!")
 
-    def resetInputs(self):
-        global usrEntryBox, challengeText
-
-        if self.timeStartState is True or self.usrIsTyping is True:
+    def reset_inputs(self):
+        if self.timeStartState or self.usrIsTyping:
             self.timeStartState = False
             self.usrIsTyping = False
             self.usrEntryBox.value = ""
+            self.challengeText.value = str(conv_LTS(generateChallengeText(10)))
 
-            buffer: str = str(
-                pages.stdfunc.conv_LTS(pages.stdfunc.generateChallengeText(10))
-            )
+        logging.info("[COMPLETED] New Text Generated!")
 
-            self.challengeText.value = str(buffer)
-            self.page.add(self.challengeText)
-            self.page.update()
-
-        if self.timeStartState is False or self.usrIsTyping is False:
-            self.usrEntryBox.value = ""
-            self.challengeText.value = str(
-                pages.stdfunc.conv_LTS(pages.stdfunc.generateChallengeText(10))
-            )
-            self.page.add(self.challengeText)
-            self.page.update()
-
-        print("[COMPLETED] New Text Generated!")
-
-    def onUserInput(self, e):
+    def on_user_input(self, e):
         if len(self.usrEntryBox.value) > 0:
             if not self.usrIsTyping:
-                self.startTyping()
+                self.start_typing()
             elif self.timeStartState and not self.usrIsTyping:
-                self.stopTyping()
+                self.stop_typing()
 
             if len(self.usrEntryBox.value) > len(self.challengeText.value):
                 self.usrEntryBox.error_text = "Incorrect, Text Too Long. Try Again!"
-                self.resetInputs()
-                print("[COMPLETED] Test Completed!\n")
+                self.reset_inputs()
+                logging.info("[COMPLETED] Test Completed!\n")
 
             if self.usrEntryBox.value == self.challengeText.value:
-                self.stopTyping()
-                self.displayResults(
-                    self.calculateResults(
-                        self.usrEntryBox.value, self.challengeText.value
-                    )
-                )
-                self.resetInputs()
-                print("[COMPLETED] Test Completed!\n")
+                self.stop_typing()
+                self.display_results(self.calculate_results())
+                self.reset_inputs()
+                logging.info("[COMPLETED] Test Completed!\n")
 
             if len(self.usrEntryBox.value) == len(self.challengeText.value):
-                self.stopTyping()
-                self.displayResults(
-                    self.calculateResults(
-                        self.usrEntryBox.value, self.challengeText.value
-                    )
-                )
-                self.resetInputs()
-                print("[COMPLETED] Test Completed!\n")
+                self.stop_typing()
+                self.display_results(self.calculate_results())
+                self.reset_inputs()
+                logging.info("[COMPLETED] Test Completed!\n")
 
-    def textAcc(self, usrEntryBox, challengeText):
-        if len(usrEntryBox) < len(challengeText):
-            textAccuracy = 0
-            return textAccuracy
+    def text_acc(self):
+        usr_chars = list(self.usrEntryBox.value)
+        challenge_chars = list(self.challengeText.value)
 
-        usrChars = list(usrEntryBox)
-        challengeChars = list(challengeText)
-
-        print(f"    |--> User Characters: {usrChars}")
-        print(f"    |--> Challenge Characters: {challengeChars}\n")
-
-        correctCharCount = sum(
-            usrChar == challengeChar
-            for usrChar, challengeChar in zip(usrChars, challengeChars)
+        correct_char_count = sum(
+            usr_char == challenge_char
+            for usr_char, challenge_char in zip(usr_chars, challenge_chars)
         )
-        totalCharCount = len(challengeChars)
+        total_char_count = len(challenge_chars)
 
-        print(f"    |--> Correct Character Count: {correctCharCount}")
-        print(f"    |--> Total Character Count: {totalCharCount}")
+        text_accuracy = round((correct_char_count / total_char_count) * 100)
+        return text_accuracy
 
-        textAccuracy = round((correctCharCount / totalCharCount) * 100)
-        print(f"    |--> Text Accuracy: {textAccuracy}%\n")
-        return textAccuracy
+    def time_taken(self):
+        time_taken = int(self.timeSTOP - self.timeSTART)
+        return time_taken
 
-    def timeTaken(self, timeSTOP, timeSTART):
-        print(f"    |--> TIME STARTED:{timeSTART}")
-        print(f"    |--> TIME STOPED:{timeSTOP}")
-        timeTaken = int(timeSTOP - timeSTART)
-        print(f"    |--> Time Taken:{timeTaken}s\n")
-        return timeTaken
-
-    def wordsPerMinute(self, timeTaken, wordCount):
-        print(f"    |--> Word Count:{wordCount}")
-        wpm = round((wordCount / timeTaken * 100))
-
-        if wpm > 400 or wpm < 0:
+    def words_per_minute(self, word_count):
+        wpm = round((word_count / self.time_taken() * 100))
+        if not 0 <= wpm <= 400:
             wpm = "INVALID SCORE"
-
-        print(f"    |--> WPM:{wpm}")
         return wpm
 
     def retry_click(self, e):
-        if self.timeStartState is True or self.usrIsTyping is True:
-            self.timeStartState = False
-            self.usrIsTyping = False
+        self.reset_inputs()
 
-            self.usrEntryBox.value = ""
-            self.challengeText.value = str(
-                pages.stdfunc.conv_LTS(pages.stdfunc.generateChallengeText(10))
-            )
-            self.page.add(self.challengeText)
-            self.page.update()
-
-        if self.timeStartState is False or self.usrIsTyping is False:
-            self.usrEntryBox.value = ""
-            self.challengeText.value = str(
-                pages.stdfunc.conv_LTS(pages.stdfunc.generateChallengeText(10))
-            )
-            self.page.add(self.challengeText)
-            self.page.update()
-
-    def onTabReset(self, e: ft.KeyboardEvent):
+    def on_tab_reset(self, e: ft.KeyboardEvent):
         if str(e.key) == "Tab":
-            print("[EVENT] On-Tab Reset Initiated")
-            self.resetInputs()
+            logging.info("[EVENT] On-Tab Reset Initiated")
+            self.reset_inputs()
 
     def build(self):
         return self.pageContent
+

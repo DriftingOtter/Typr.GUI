@@ -35,28 +35,6 @@ class OttrDBM:
         """
         cursor.execute(createTableQuery)
 
-    def createOrUpdateUserTable(self, cursor, dbName):
-        # Replace hyphens with underscores in the table name
-        sanitizedDbName = dbName.replace("-", "_")
-
-        # Check if 'users' table exists before creating the foreign key
-        cursor.execute("SHOW TABLES LIKE 'users'")
-        if cursor.fetchone():
-            createTableQuery = f"""
-                CREATE TABLE IF NOT EXISTS {sanitizedDbName} (
-                    id INT AUTO_INCREMENT PRIMARY KEY,
-                    uid VARCHAR(36),
-                    wpm INT,
-                    acc INT,
-                    ttk INT,
-                    testName VARCHAR(4),
-                    FOREIGN KEY (uid) REFERENCES users(uid)
-                )
-            """
-            cursor.execute(createTableQuery)
-        else:
-            logging.error("Error: 'users' table does not exist.")
-
     def isValidEmail(self, email):
         pattern = r"[^@]+@[^@]+\.[^@]+$"
         return re.match(pattern, email) is not None
@@ -111,9 +89,10 @@ class OttrDBM:
                     (userId, email, hashedPassword),
                 )
 
-                self.createOrUpdateUserTable(cursor, f"user_{userId}")
-
             connection.commit()
+
+            # Create the user's test scores table
+            self.createTestScoresTable(cursor, email)
 
             logging.info(
                 "User with email %s successfully created. UID: %s", email, userId
@@ -153,23 +132,6 @@ class OttrDBM:
                     if enteredPasswordHash == hashedPassword:
                         logging.info("Login successful. UID: %s", userId)
 
-                        userDbName = f"user_{userId}"
-
-                        # Check if the user's dedicated table exists, create if not
-                        self.createOrUpdateUserTable(cursor, userDbName)
-
-                        # Connect to the user's dedicated database
-                        userConfig = {**self.config, "database": userDbName}
-                        with mysql.connector.connect(
-                            **userConfig
-                        ) as userConnection, userConnection.cursor() as userCursor:
-                            logging.info(
-                                "Connected to the database for user %s.", email
-                            )
-
-                            # Perform operations specific to the authenticated user's database
-                            # For example: userCursor.execute("CREATE TABLE IF NOT EXISTS ...")
-
                         return 0  # Success
 
                     else:
@@ -188,37 +150,41 @@ class OttrDBM:
             if connection:
                 connection.close()
 
+    def addTestScore(self, uid, wpm, acc, ttk, test_type):
+        connection = self.connectToDatabase()
+        if not connection:
+            return 6  # Error code for database connection failure
 
-# Example Usage:
-# db_manager = OttrDBM({
-#     'user': 'your_username',
-#     'password': 'your_password',
-#     'host': 'your_host',
-#     'database': 'your_database'
-# })
-#
-# result = db_manager.createUser('user@example.com', 'P@ssw0rd')
-#
-# if result == 0:
-#     print("User creation successful!")
-# elif result == 1:
-#     print("Invalid email format. Please provide a valid email address.")
-# elif result == 2:
-#     print("Weak password. Please use a stronger password.")
-# elif result == 3:
-#     print("Database connection failure.")
-# elif result == 4:
-#     print("Email already exists.")
-#
-# result = db_manager.authenticateUser('user@example.com', 'P@ssw0rd')
-#
-# if result == 0:
-#     print("Login successful!")
-# elif result == 1:
-#     print("Invalid email format. Please provide a valid email address.")
-# elif result == 2:
-#     print("Database connection failure.")
-# elif result == 3:
-#     print("Invalid email or password.")
-# elif result == 4:
-#     print("User not found.")
+        try:
+            with connection.cursor() as cursor:
+                # Insert the new test score record
+                cursor.execute(
+                    "INSERT INTO users_scores (uid, wpm, acc, ttk, test_type) VALUES (%s, %s, %s, %s, %s)",
+                    (uid, wpm, acc, ttk, test_type),
+                )
+
+            connection.commit()
+
+            logging.info("Test score successfully added for user %s.", uid)
+            return 0  # Success
+
+        except Exception as e:
+            logging.error("An error occurred during test score addition: %s", str(e))
+            return 7  # Error code for other exceptions
+
+        finally:
+            if connection:
+                connection.close()
+
+
+# Example usage:
+# db_config = {
+#     "host": "your_host",
+#     "user": "your_user",
+#     "password": "your_password",
+#     "database": "your_database"
+# }
+# ottr_dbm = OttrDBM(db_config)
+# ottr_dbm.createTestScoresTable(cursor, "example@email.com")
+# result = ottr_dbm.addTestScore("example@email.com", 100, 95, 30, "A")
+# print(result)

@@ -97,6 +97,7 @@ class Login(ft.UserControl):
 
         self.loginBtn = ft.ElevatedButton(
             "Login",
+            #on_click=lambda _: self.page.go("/lessons"),
             on_click=self.login_event,
         )
 
