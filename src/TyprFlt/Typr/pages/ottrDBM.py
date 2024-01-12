@@ -211,8 +211,6 @@ class OttrDBM:
             if connection:
                 connection.close()
 
-
-    
     def find_total_time_played(self, uid):
         connection = self.connectToDatabase()
         if not connection:
@@ -273,8 +271,6 @@ class OttrDBM:
         finally:
             if connection:
                 connection.close()
-
-
 
 
 # Example usage:

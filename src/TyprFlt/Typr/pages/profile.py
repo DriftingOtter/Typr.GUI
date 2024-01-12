@@ -33,6 +33,10 @@ class Profile(ft.UserControl):
         self.userPersonalBestACC = self.userPersonalBestResults[1]
         self.userPersonalBestTTK = self.userPersonalBestResults[2]
 
+        self.totalTime = self.find_total_time()
+
+        self.currentUserUID = self.find_uid()
+
     def create_page_controls(self):
         self.pageHeader = self.create_page_header()
         self.personalBestsBoard = self.create_personal_bests_board(
@@ -40,8 +44,12 @@ class Profile(ft.UserControl):
         )
         self.wpm_figure, self.acc_figure, self.ttk_figure = self.create_figures()
         self.profile_figure_container = self.create_profile_figure_container()
-        self.player_name_card = self.create_player_card("N/A", "N/A")
-        self.time_played_card = self.create_player_card("Time Played", "Time: N/A")
+        self.player_name_card = self.create_player_card(
+            "Typist, welcome back!", f"{self.currentUserUID}"
+        )
+        self.time_played_card = self.create_player_card(
+            "Time Played", f"Time:{self.totalTime}"
+        )
         self.return_btn = ft.ElevatedButton(
             "Return", on_click=lambda _: self.page.go("/lessons")
         )
@@ -172,6 +180,55 @@ class Profile(ft.UserControl):
                 self.pbScore = self.dbManager.find_personal_best(self.currentUser)
 
             return self.pbScore
+
+        except FileNotFoundError:
+            # Handle the case where the file is not found
+            print("Error: File 'data.pkl' not found.")
+
+        except pickle.UnpicklingError:
+            # Handle the case where there is an issue with unpickling (corrupted file)
+            print(
+                "Error: Unable to unpickle data from 'data.pkl'. File might be corrupted."
+            )
+
+        except Exception as e:
+            # Handle any other unexpected exceptions
+            print(f"An unexpected error occurred: {str(e)}")
+
+        return None, None, None
+
+    def find_total_time(self):
+        try:
+            with open("data.pkl", "rb") as file:
+                self.loaded_data = pickle.load(file)
+                self.currentUser = self.loaded_data
+
+                self.totalTime = self.dbManager.find_total_time_played(self.currentUser)
+
+            return self.totalTime
+
+        except FileNotFoundError:
+            # Handle the case where the file is not found
+            print("Error: File 'data.pkl' not found.")
+
+        except pickle.UnpicklingError:
+            # Handle the case where there is an issue with unpickling (corrupted file)
+            print(
+                "Error: Unable to unpickle data from 'data.pkl'. File might be corrupted."
+            )
+
+        except Exception as e:
+            # Handle any other unexpected exceptions
+            print(f"An unexpected error occurred: {str(e)}")
+
+        return None, None, None
+
+    def find_uid(self):
+        try:
+            with open("data.pkl", "rb") as file:
+                self.loaded_data = pickle.load(file)
+                self.currentUser = self.loaded_data
+            return self.currentUser
 
         except FileNotFoundError:
             # Handle the case where the file is not found
