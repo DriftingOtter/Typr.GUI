@@ -181,22 +181,29 @@ class OttrDBM:
 
         try:
             with connection.cursor() as cursor:
-                # Query the database to find the greatest WPM score for the given UID
+                # Query the database to find the greatest WPM, ACC, and TTK scores for the given UID
                 cursor.execute(
-                    "SELECT MAX(wpm) FROM users_scores WHERE uid = %s", (uid,)
+                    "SELECT MAX(wpm), MAX(acc), MAX(ttk) FROM users_scores WHERE uid = %s",
+                    (uid,),
                 )
-                personal_best = cursor.fetchone()[0]
+                personal_best = cursor.fetchone()
 
-                if personal_best is not None:
-                    logging.info("Personal best WPM for user %s: %s", uid, personal_best)
-                    return personal_best  # Return the personal best WPM score
+                if personal_best and any(value is not None for value in personal_best):
+                    logging.info(
+                        "Personal best scores for user %s: WPM: %s, ACC: %s, TTK: %s",
+                        uid,
+                        personal_best[0],
+                        personal_best[1],
+                        personal_best[2],
+                    )
+                    return personal_best  # Return the personal best WPM, ACC, and TTK scores
 
                 logging.info("No test scores found for user %s", uid)
                 return None  # Return None if no test scores found for the given UID
 
         except Exception as e:
             logging.error(
-                "An error occurred while finding personal best WPM: %s", str(e)
+                "An error occurred while finding personal best scores: %s", str(e)
             )
             return None  # Return None for other exceptions
 
@@ -204,6 +211,8 @@ class OttrDBM:
             if connection:
                 connection.close()
 
+
+    
     def find_total_time_played(self, uid):
         connection = self.connectToDatabase()
         if not connection:
