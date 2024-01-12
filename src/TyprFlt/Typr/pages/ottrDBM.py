@@ -4,6 +4,7 @@ from mysql.connector import Error as MySQLError, errorcode
 import hashlib
 import logging
 import re
+import datetime
 
 
 class OttrDBM:
@@ -91,9 +92,6 @@ class OttrDBM:
 
             connection.commit()
 
-            # Create the user's test scores table
-            self.createTestScoresTable(cursor, email)
-
             logging.info(
                 "User with email %s successfully created. UID: %s", email, userId
             )
@@ -150,7 +148,7 @@ class OttrDBM:
             if connection:
                 connection.close()
 
-    def addTestScore(self, uid, wpm, acc, ttk, test_type):
+    def addTestScore(self, uid, wpm, acc, ttk, test_type, date):
         connection = self.connectToDatabase()
         if not connection:
             return 6  # Error code for database connection failure
@@ -159,8 +157,8 @@ class OttrDBM:
             with connection.cursor() as cursor:
                 # Insert the new test score record
                 cursor.execute(
-                    "INSERT INTO users_scores (uid, wpm, acc, ttk, test_type) VALUES (%s, %s, %s, %s, %s)",
-                    (uid, wpm, acc, ttk, test_type),
+                    "INSERT INTO users_scores (uid, wpm, acc, ttk, test_type, date) VALUES (%s, %s, %s, %s, %s, %s)",
+                    (uid, wpm, acc, ttk, test_type, date),
                 )
 
             connection.commit()
@@ -175,6 +173,99 @@ class OttrDBM:
         finally:
             if connection:
                 connection.close()
+
+    def find_personal_best(self, uid):
+        connection = self.connectToDatabase()
+        if not connection:
+            return None  # Return None for database connection failure
+
+        try:
+            with connection.cursor() as cursor:
+                # Query the database to find the greatest WPM score for the given UID
+                cursor.execute(
+                    "SELECT MAX(wpm) FROM users_scores WHERE uid = %s", (uid,)
+                )
+                personal_best = cursor.fetchone()[0]
+
+                if personal_best is not None:
+                    logging.info("Personal best WPM for user %s: %s", uid, personal_best)
+                    return personal_best  # Return the personal best WPM score
+
+                logging.info("No test scores found for user %s", uid)
+                return None  # Return None if no test scores found for the given UID
+
+        except Exception as e:
+            logging.error(
+                "An error occurred while finding personal best WPM: %s", str(e)
+            )
+            return None  # Return None for other exceptions
+
+        finally:
+            if connection:
+                connection.close()
+
+    def find_total_time_played(self, uid):
+        connection = self.connectToDatabase()
+        if not connection:
+            return None  # Return None for database connection failure
+
+        try:
+            with connection.cursor() as cursor:
+                # Query the database to find the total time played for the given UID
+                cursor.execute(
+                    "SELECT SUM(ttk) FROM users_scores WHERE uid = %s", (uid,)
+                )
+                total_time_seconds = cursor.fetchone()[0]
+
+                if total_time_seconds is not None:
+                    # Convert total time from seconds to hours:minutes:seconds format
+                    total_time_formatted = str(
+                        datetime.timedelta(seconds=int(total_time_seconds))
+                    )
+                    logging.info(
+                        "Total time played for user %s: %s", uid, total_time_formatted
+                    )
+                    return total_time_formatted  # Return the total time played
+
+                logging.info("No test scores found for user %s", uid)
+                return None  # Return None if no test scores found for the given UID
+
+        except Exception as e:
+            logging.error(
+                "An error occurred while finding total time played: %s", str(e)
+            )
+            return None  # Return None for other exceptions
+
+        finally:
+            if connection:
+                connection.close()
+
+    def fetch_data_for_plot(self, metric, uid):
+        connection = self.connectToDatabase()
+        if not connection:
+            return None  # Return None for database connection failure
+
+        try:
+            with connection.cursor(dictionary=True) as cursor:
+                # Query the database to fetch the specified metric (WPM, ACC, or TTK) for a given UID
+                cursor.execute(
+                    f"SELECT date, {metric} FROM users_scores WHERE uid = %s", (uid,)
+                )
+                data = cursor.fetchall()
+
+                return data
+
+        except Exception as e:
+            logging.error(
+                f"An error occurred while fetching data for {metric}: {str(e)}"
+            )
+            return None  # Return None for other exceptions
+
+        finally:
+            if connection:
+                connection.close()
+
+
 
 
 # Example usage:

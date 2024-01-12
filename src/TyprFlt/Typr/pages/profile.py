@@ -1,6 +1,8 @@
 import flet as ft
 import plotly.express as px
 from flet.plotly_chart import PlotlyChart
+from .ottrDBM import OttrDBM
+import pickle
 
 
 class Profile(ft.UserControl):
@@ -17,14 +19,22 @@ class Profile(ft.UserControl):
         self.page.scroll = ft.ScrollMode.HIDDEN
         self.page.on_resize = self.page_resize
 
+        self.dbConfig = {
+            "user": "root",
+            "password": "",
+            "host": "localhost",
+            "database": "typr_acc_info",
+            "raise_on_warnings": True,
+        }
+        self.dbManager = OttrDBM(self.dbConfig)
+
+
     def create_page_controls(self):
         self.pageHeader = self.create_page_header()
         self.personalBestsBoard = self.create_personal_bests_board()
-        self.tests_data_file = px.data.gapminder().query("continent=='Oceania'")
         self.wpm_figure, self.acc_figure, self.ttk_figure = self.create_figures()
         self.profile_figure_container = self.create_profile_figure_container()
         self.player_name_card = self.create_player_card("N/A", "N/A")
-        self.player_level_card = self.create_player_card("Typist Level", "Level: N/A")
         self.time_played_card = self.create_player_card("Time Played", "Time: N/A")
         self.return_btn = ft.ElevatedButton(
             "Return", on_click=lambda _: self.page.go("/lessons")
@@ -40,8 +50,6 @@ class Profile(ft.UserControl):
                 ft.Container(padding=20),
                 self.player_name_card,
                 ft.Container(padding=20),
-                self.player_level_card,
-                ft.Container(padding=20),
                 self.time_played_card,
                 ft.Container(padding=20),
                 ft.Container(
@@ -56,6 +64,28 @@ class Profile(ft.UserControl):
             ]
         )
         self.pageContent.alignment = ft.alignment.center
+
+        self.dbGraphBannerFail = ft.Banner(
+            bgcolor=ft.colors.AMBER_100,
+            leading=ft.Icon(
+                ft.icons.WARNING_AMBER_ROUNDED, color=ft.colors.AMBER, size=40
+            ),
+            content=ft.Text("Oops, could not create graph from user data to database."),
+            actions=[
+                ft.TextButton("Close", on_click=self.fail_close_banner),
+            ],
+        )
+
+        self.dbGraphBannerPass = ft.Banner(
+            bgcolor=ft.colors.GREEN,
+            leading=ft.Icon(ft.icons.CHECK, color=ft.colors.GREEN, size=40),
+            content=ft.Text(
+                "Great, successfully created graph from user data to database."
+            ),
+            actions=[
+                ft.TextButton("Close", on_click=self.pass_close_banner),
+            ],
+        )
 
     def create_page_header(self):
         return ft.Row(
@@ -100,10 +130,32 @@ class Profile(ft.UserControl):
         )
 
     def create_figures(self):
-        wpm_figure = px.line(self.tests_data_file, x="pop", y="year", color="iso_num")
-        acc_figure = px.line(self.tests_data_file, x="pop", y="year", color="iso_num")
-        ttk_figure = px.line(self.tests_data_file, x="pop", y="year", color="iso_num")
-        return wpm_figure, acc_figure, ttk_figure
+        try:
+            with open("data.pkl", "rb") as file:
+                self.loaded_data = pickle.load(file)
+                self.currentUser = self.loaded_data
+
+            wpm_figure = self.plot_wpm_date(self.currentUser)
+            acc_figure = self.plot_acc_date(self.currentUser)
+            ttk_figure = self.plot_ttk_date(self.currentUser)
+
+            return wpm_figure, acc_figure, ttk_figure
+
+        except FileNotFoundError:
+            # Handle the case where the file is not found
+            print("Error: File 'data.pkl' not found.")
+
+        except pickle.UnpicklingError:
+            # Handle the case where there is an issue with unpickling (corrupted file)
+            print(
+                "Error: Unable to unpickle data from 'data.pkl'. File might be corrupted."
+            )
+
+        except Exception as e:
+            # Handle any other unexpected exceptions
+            print(f"An unexpected error occurred: {str(e)}")
+
+        return None, None, None  # Return None for all figures in case of an error
 
     def create_profile_figure_container(self):
         return ft.Container(
@@ -146,6 +198,32 @@ class Profile(ft.UserControl):
                 padding=10,
             )
         )
+
+    def plot_wpm_date(self, uid):
+        self.data = self.dbManager.fetch_data_for_plot("wpm", uid)
+        if self.data:
+            self.fig = px.line(self.data, x="date", y="wpm", title="WPM over Time")
+            return self.fig
+
+    def plot_acc_date(self, uid):
+        self.data = self.dbManager.fetch_data_for_plot("acc", uid)
+        if self.data:
+            self.fig = px.line(self.data, x="date", y="acc", title="Accuracy over Time")
+            return self.fig
+
+    def plot_ttk_date(self, uid):
+        self.data = self.dbManager.fetch_data_for_plot("ttk", uid)
+        if self.data:
+            self.fig = px.line(self.data, x="date", y="ttk", title="TTK over Time")
+            return self.fig
+
+    def pass_close_banner(self, e):
+        self.dbGraphBannerPass.open = False
+        self.page.update()
+
+    def fail_close_banner(self, e):
+        self.dbGraphBannerFail.open = False
+        self.page.update()
 
     def page_resize(self, e):
         self.pageContent.alignment = ft.alignment.center

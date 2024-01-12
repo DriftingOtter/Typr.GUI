@@ -3,6 +3,7 @@ import flet as ft
 from pages.stdfunc import conv_LTS, generateChallengeText
 from .ottrDBM import OttrDBM
 import time
+import datetime
 import pickle
 
 logging.basicConfig(level=logging.INFO)
@@ -133,7 +134,7 @@ class PunctuationTyping(ft.UserControl):
         self.currentUser = self.loaded_data
 
         self.returnValue = self.dbManager.addTestScore(
-            self.currentUser, wpm, acc, ttk, test_type
+            self.currentUser, wpm, acc, ttk, test_type, datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         )
 
         if self.returnValue == 0:
