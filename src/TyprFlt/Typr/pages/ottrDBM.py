@@ -97,7 +97,7 @@ class OttrDBM:
             logging.info(
                 "User with email %s successfully created. UID: %s", email, userId
             )
-            return 0  # Success
+            return 0, userId  # Success
 
         except Exception as e:
             logging.error("An error occurred during user creation: %s", str(e))
@@ -132,7 +132,7 @@ class OttrDBM:
                     if enteredPasswordHash == hashedPassword:
                         logging.info("Login successful. UID: %s", userId)
 
-                        return 0  # Success
+                        return 0, userId  # Success
 
                     else:
                         logging.error("Error: Invalid email or password.")

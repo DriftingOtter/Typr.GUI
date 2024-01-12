@@ -1,9 +1,12 @@
 import logging
 import flet as ft
 from pages.stdfunc import conv_LTS, generateChallengeText
+from .ottrDBM import OttrDBM
 import time
+import pickle
 
 logging.basicConfig(level=logging.INFO)
+
 
 class BottomTyping(ft.UserControl):
     def __init__(self, page):
@@ -11,6 +14,15 @@ class BottomTyping(ft.UserControl):
 
         self.page = page
         self.initialize_page_settings()
+
+        self.dbConfig = {
+            "user": "root",
+            "password": "",
+            "host": "localhost",
+            "database": "typr_acc_info",
+            "raise_on_warnings": True,
+        }
+        self.dbManager = OttrDBM(self.dbConfig)
 
         self.timeStartState = False
         self.usrIsTyping = False
@@ -51,7 +63,25 @@ class BottomTyping(ft.UserControl):
             ]
         )
 
-        self.page.on_keyboard_event = self.on_tab_reset
+        self.dbSaverBannerFail = ft.Banner(
+            bgcolor=ft.colors.AMBER_100,
+            leading=ft.Icon(
+                ft.icons.WARNING_AMBER_ROUNDED, color=ft.colors.AMBER, size=40
+            ),
+            content=ft.Text("Oops, could not save user data to database."),
+            actions=[
+                ft.TextButton("Close", on_click=self.fail_close_banner),
+            ],
+        )
+
+        self.dbSaverBannerPass = ft.Banner(
+            bgcolor=ft.colors.GREEN,
+            leading=ft.Icon(ft.icons.CHECK, color=ft.colors.GREEN, size=40),
+            content=ft.Text("Great, successfully saved user data to database."),
+            actions=[
+                ft.TextButton("Close", on_click=self.pass_close_banner),
+            ],
+        )
 
     def initialize_page_settings(self):
         self.page.title = "Typr: Bottom Row Lesson"
@@ -94,6 +124,32 @@ class BottomTyping(ft.UserControl):
         results_dialogue.open = True
         self.page.update()
         logging.info("[COMPLETED] Results Calculated!")
+
+        self.send_results_to_db(results[2], results[0], results[1], "BRT")
+
+    def send_results_to_db(self, wpm, acc, ttk, test_type):
+        with open("data.pkl", "rb") as file:
+            self.loaded_data = pickle.load(file)
+        self.currentUser = self.loaded_data
+
+        self.returnValue = self.dbManager.addTestScore(
+            self.currentUser, wpm, acc, ttk, test_type
+        )
+
+        if self.returnValue == 0:
+            self.dbSaverBannerPass.open = True
+            self.page.update()
+        else:
+            self.dbSaverBannerFail.open = True
+            self.page.update()
+
+    def pass_close_banner(self, e):
+        self.dbSaverBannerPass.open = False
+        self.page.update()
+
+    def fail_close_banner(self, e):
+        self.dbSaverBannerFail.open = False
+        self.page.update()
 
     def reset_inputs(self):
         if self.timeStartState or self.usrIsTyping:
@@ -154,11 +210,9 @@ class BottomTyping(ft.UserControl):
     def retry_click(self, e):
         self.reset_inputs()
 
-    def on_tab_reset(self, e: ft.KeyboardEvent):
-        if str(e.key) == "Tab":
-            logging.info("[EVENT] On-Tab Reset Initiated")
-            self.reset_inputs()
+    def force_reset(self, e):
+        logging.info("[EVENT] On-Tab Reset Initiated")
+        self.reset_inputs()
 
     def build(self):
         return self.pageContent
-

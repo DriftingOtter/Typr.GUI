@@ -1,4 +1,5 @@
 import flet as ft
+import pickle
 import logging
 from .ottrDBM import OttrDBM
 
@@ -97,7 +98,7 @@ class Login(ft.UserControl):
 
         self.loginBtn = ft.ElevatedButton(
             "Login",
-            #on_click=lambda _: self.page.go("/lessons"),
+            # on_click=lambda _: self.page.go("/lessons"),
             on_click=self.login_event,
         )
 
@@ -155,7 +156,10 @@ class Login(ft.UserControl):
         # Validate & Create New User In DB along with personal DB
         self.returnValue = self.loginManager.authenticateUser(self.email, self.pwd)
 
-        if self.returnValue == 0:
+        if self.returnValue[0] == 0:
+            with open("data.pkl", "wb") as file:
+                pickle.dump(str(self.returnValue[1]), file)
+
             self.page.go("/lessons")
         else:
             # Add Error Notification During Error Code

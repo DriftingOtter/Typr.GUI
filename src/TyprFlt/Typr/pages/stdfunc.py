@@ -1,6 +1,7 @@
 import string
 import random
 
+
 def generateChallengeText(numOfWords):
     wordList = "/home/daksh/Documents/Typr/src/WordLists/Loki_Word_List_EN.txt"
     challengeText = []
@@ -22,4 +23,3 @@ def conv_LTS(lst):  # Converts The Generated ChallengeText List -> String
     strText = strText.translate({ord(c): " " for c in string.whitespace})
 
     return str(strText)
-
