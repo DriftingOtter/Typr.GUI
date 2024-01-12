@@ -126,7 +126,7 @@ class FreeTyping(ft.UserControl):
         self.page.update()
         logging.info("[COMPLETED] Results Calculated!")
 
-        self.send_results_to_db(results[2], results[0], results[1], "HRT")
+        self.send_results_to_db(results[2], results[0], results[1], "FTT")
 
     def send_results_to_db(self, wpm, acc, ttk, test_type):
         with open("data.pkl", "rb") as file:
