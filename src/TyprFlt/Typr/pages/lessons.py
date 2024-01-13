@@ -1,24 +1,103 @@
 import flet as ft
 
-
 class Lessons(ft.UserControl):
     def __init__(self, page):
         super().__init__()
         self.page = page
+        self.initialize_page_settings()
 
-        page.title = "Typr: Your Personal Typing Tutor"
+        self.create_page_header("Lessons")
 
-        page.horizontal_alignment = ft.CrossAxisAlignment.CENTER
-        page.vertical_alignment = ft.MainAxisAlignment.CENTER
+        self.home_row_card = self.create_lesson_card(
+            "Home Row Lesson",
+            "Learn the basic of typing by learning the row in which your hands lay.",
+            "/homeRow"
+        )
 
-        page.scroll = ft.ScrollMode.HIDDEN
+        self.top_row_card = self.create_lesson_card(
+            "Top Row Lesson",
+            "Learn the top row and its intricacies.",
+            "/topRow"
+        )
 
-        page.on_resize = self.page_resize
+        self.bottom_row_card = self.create_lesson_card(
+            "Bottom Row Lesson",
+            "Learn the bottom row. Let's see what you got!",
+            "/bottomRow"
+        )
 
-        # ==============
-        # Page Controls
-        # ==============
-        self.pageHeader = ft.Row(
+        self.number_row_card = self.create_lesson_card(
+            "Number Row Lesson",
+            "Learn the basics of typing on the number row. 1..2..3.. Let's Go!",
+            "/numberRow"
+        )
+
+        self.punctuation_row_card = self.create_lesson_card(
+            "Punctuation Row Lesson",
+            "Learn how to utilize punctuation in your typing! Let's see what you can do.",
+            "/punctuationRow"
+        )
+
+        self.free_typing_card = self.create_lesson_card(
+            "Free Typing / Typing Test",
+            "The final lesson! Let's try out your skills with a whole keyboard test.",
+            "/freeTyping"
+        )
+
+        self.profile_page_card = self.create_card(
+            title="Profile Page",
+            subtitle="Go To Profile Page",
+            on_click=lambda _: self.page.go("/profile"),
+            size=20,
+            is_profile_card=True
+        )
+
+        self.lesson_container = ft.ListView(
+            controls=[
+                self.home_row_card,
+                ft.Container(padding=10),
+                self.top_row_card,
+                ft.Container(padding=10),
+                self.bottom_row_card,
+                ft.Container(padding=10),
+                self.number_row_card,
+                ft.Container(padding=10),
+                self.punctuation_row_card,
+                ft.Container(padding=10),
+                self.free_typing_card,
+            ]
+        )
+
+        self.return_btn = ft.ElevatedButton(
+            "Return",
+            on_click=lambda _: self.page.go("/"),
+        )
+
+        self.page_content = ft.ListView(
+            controls=[
+                ft.Container(self.page_header),
+                ft.Divider(thickness=10),
+                ft.Container(padding=10),
+                ft.Container(self.lesson_container),
+                ft.Container(padding=10),
+                ft.Divider(thickness=5),
+                ft.Container(padding=10),
+                ft.Container(self.profile_page_card),
+                ft.Container(padding=20),
+                ft.Container(self.return_btn),
+            ],
+        )
+        self.page_content.alignment = ft.alignment.center
+
+    def initialize_page_settings(self):
+        self.page.title = "Typr: Your Personal Typing Tutor"
+        self.page.horizontal_alignment = ft.CrossAxisAlignment.CENTER
+        self.page.vertical_alignment = ft.MainAxisAlignment.CENTER
+        self.page.scroll = ft.ScrollMode.HIDDEN
+        self.page.on_resize = self.page_resize
+
+    def create_page_header(self, title):
+        self.page_header = ft.Row(
             controls=[
                 ft.Image(
                     src="images/Astro_Typing.png",
@@ -27,7 +106,7 @@ class Lessons(ft.UserControl):
                 ),
                 ft.Container(
                     ft.Text(
-                        "Lessons",
+                        title,
                         style=ft.TextThemeStyle.DISPLAY_LARGE,
                         size=48,
                         color="white",
@@ -43,229 +122,43 @@ class Lessons(ft.UserControl):
             vertical_alignment=ft.CrossAxisAlignment.CENTER,
         )
 
-        self.homeRowCard = ft.Card(
-            content=ft.Container(
-                content=ft.Column(
-                    [
-                        ft.ListTile(
-                            leading=ft.Icon(ft.icons.ALBUM),
-                            title=ft.Text("Home Row Lesson"),
-                            subtitle=ft.Text(
-                                "Learn the basic of typing by learning the row in which your hands lay."
-                            ),
-                        ),
-                        ft.Row(
-                            [
-                                ft.ElevatedButton(
-                                    "Start Lesson",
-                                    on_click=lambda _: self.page.go("/homeRow"),
-                                )
-                            ],
-                            alignment=ft.MainAxisAlignment.END,
-                        ),
-                    ]
-                ),
-                width=400,
-                padding=10,
-            )
+    def create_lesson_card(self, title, subtitle, route):
+        return self.create_card(
+            title=title,
+            subtitle=subtitle,
+            on_click=lambda _: self.page.go(route)
         )
 
-        self.topRowCard = ft.Card(
-            content=ft.Container(
-                content=ft.Column(
-                    [
-                        ft.ListTile(
-                            leading=ft.Icon(ft.icons.ALBUM),
-                            title=ft.Text("Top Row Lesson"),
-                            subtitle=ft.Text("Learn the top row and it's intricies."),
-                        ),
-                        ft.Row(
-                            [
-                                ft.ElevatedButton(
-                                    "Start Lesson",
-                                    on_click=lambda _: self.page.go("/topRow"),
-                                )
-                            ],
-                            alignment=ft.MainAxisAlignment.END,
-                        ),
-                    ]
-                ),
-                width=400,
-                padding=10,
-            )
+    def create_card(self, title, subtitle, on_click=None, size=None, is_profile_card=False):
+        button_text = "Go To Profile" if is_profile_card else "Start Lesson"
+        
+        card_content = ft.Container(
+            content=ft.Column(
+                [
+                    ft.ListTile(
+                        leading=ft.Icon(ft.icons.ALBUM),
+                        title=ft.Text(title, size=size),
+                        subtitle=ft.Text(subtitle),
+                    ),
+                    ft.Row(
+                        [
+                            ft.ElevatedButton(
+                                button_text,
+                                on_click=on_click
+                            )
+                        ],
+                        alignment=ft.MainAxisAlignment.END,
+                    ),
+                ]
+            ),
+            width=400,
+            padding=10,
         )
-
-        self.bottomRowCard = ft.Card(
-            content=ft.Container(
-                content=ft.Column(
-                    [
-                        ft.ListTile(
-                            leading=ft.Icon(ft.icons.ALBUM),
-                            title=ft.Text("Bottom Row Lesson"),
-                            subtitle=ft.Text(
-                                "Learn the bottom row. Lets see what you got!"
-                            ),
-                        ),
-                        ft.Row(
-                            [
-                                ft.ElevatedButton(
-                                    "Start Lesson",
-                                    on_click=lambda _: self.page.go("/bottomRow"),
-                                )
-                            ],
-                            alignment=ft.MainAxisAlignment.END,
-                        ),
-                    ]
-                ),
-                width=400,
-                padding=10,
-            )
-        )
-
-        self.numberRowCard = ft.Card(
-            content=ft.Container(
-                content=ft.Column(
-                    [
-                        ft.ListTile(
-                            leading=ft.Icon(ft.icons.ALBUM),
-                            title=ft.Text("Number Row Lesson"),
-                            subtitle=ft.Text(
-                                "Learn the basic of typing by on the number row, 1..2..3..Lets Go!"
-                            ),
-                        ),
-                        ft.Row(
-                            [
-                                ft.ElevatedButton(
-                                    "Start Lesson",
-                                    on_click=lambda _: self.page.go("/numberRow"),
-                                )
-                            ],
-                            alignment=ft.MainAxisAlignment.END,
-                        ),
-                    ]
-                ),
-                width=400,
-                padding=10,
-            )
-        )
-
-        self.punctuationRowCard = ft.Card(
-            content=ft.Container(
-                content=ft.Column(
-                    [
-                        ft.ListTile(
-                            leading=ft.Icon(ft.icons.ALBUM),
-                            title=ft.Text("Punctuation Row Lesson"),
-                            subtitle=ft.Text(
-                                "Learn how to utilize punctuation in your typing! Lets see, what you can do."
-                            ),
-                        ),
-                        ft.Row(
-                            [
-                                ft.ElevatedButton(
-                                    "Start Lesson",
-                                    on_click=lambda _: self.page.go("/punctuationRow"),
-                                )
-                            ],
-                            alignment=ft.MainAxisAlignment.END,
-                        ),
-                    ]
-                ),
-                width=400,
-                padding=10,
-            )
-        )
-
-        self.freeTypingCard = ft.Card(
-            content=ft.Container(
-                content=ft.Column(
-                    [
-                        ft.ListTile(
-                            leading=ft.Icon(ft.icons.ALBUM),
-                            title=ft.Text("Free Typing / Typing Test"),
-                            subtitle=ft.Text(
-                                "The final lesson! Let's try out your skills at a whole keyboard test."
-                            ),
-                        ),
-                        ft.Row(
-                            [
-                                ft.ElevatedButton(
-                                    "Start Lesson",
-                                    on_click=lambda _: self.page.go("/freeTyping"),
-                                )
-                            ],
-                            alignment=ft.MainAxisAlignment.END,
-                        ),
-                    ]
-                ),
-                width=400,
-                padding=10,
-            )
-        )
-
-        self.profilePageCard = ft.Card(
-            content=ft.Container(
-                content=ft.Column(
-                    [
-                        ft.ListTile(
-                            leading=ft.Icon(ft.icons.ALBUM),
-                            title=ft.Text("Profile Page", size=20),
-                        ),
-                        ft.Row(
-                            [
-                                ft.ElevatedButton(
-                                    "Go to Profile Page",
-                                    on_click=lambda _: self.page.go("/profile"),
-                                )
-                            ],
-                            alignment=ft.MainAxisAlignment.END,
-                        ),
-                    ]
-                ),
-                width=400,
-                padding=10,
-            )
-        )
-
-        self.LessonContainer = ft.ListView(
-            controls=[
-                self.homeRowCard,
-                ft.Container(padding=10),
-                self.topRowCard,
-                ft.Container(padding=10),
-                self.bottomRowCard,
-                ft.Container(padding=10),
-                self.numberRowCard,
-                ft.Container(padding=10),
-                self.punctuationRowCard,
-                ft.Container(padding=10),
-                self.freeTypingCard,
-            ]
-        )
-
-        self.returnBtn = ft.ElevatedButton(
-            "Return",
-            on_click=lambda _: self.page.go("/"),
-        )
-
-        self.pageContent = ft.ListView(
-            controls=[
-                ft.Container(self.pageHeader),
-                ft.Divider(thickness=10),
-                ft.Container(padding=10),
-                ft.Container(self.LessonContainer),
-                ft.Container(padding=10),
-                ft.Divider(thickness=5),
-                ft.Container(padding=10),
-                ft.Container(self.profilePageCard),
-                ft.Container(padding=20),
-                ft.Container(self.returnBtn),
-            ],
-        )
-        self.pageContent.alignment = ft.alignment.center
+        return ft.Card(content=card_content)
 
     def page_resize(self, e):
-        self.pageContent.alignment = ft.alignment.center
+        self.page_content.alignment = ft.alignment.center
 
     def build(self):
-        return self.pageContent
+        return self.page_content
+

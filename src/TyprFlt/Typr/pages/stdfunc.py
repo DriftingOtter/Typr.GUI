@@ -1,25 +1,23 @@
 import string
 import random
 
+def generate_challenge_text(num_of_words, word_list_path):
+    challenge_text = []
+    
+    with open(word_list_path, "r") as current_text:
+        lines = current_text.readlines()
 
-def generateChallengeText(numOfWords):
-    wordList = "/home/daksh/Documents/Typr/src/WordLists/Loki_Word_List_EN.txt"
-    challengeText = []
+    num_lines = len(lines)
 
-    with open(wordList, "r") as currentText:
-        lines = currentText.readlines()
+    for _ in range(num_of_words):
+        random_line_gen = random.randint(0, num_lines - 1)
+        challenge_text.append(lines[random_line_gen].strip())
 
-    numLines = len(lines)
+    return challenge_text
 
-    for words in range(numOfWords):
-        randomLineGen = random.randint(0, numLines - 1)
-        challengeText.append(lines[randomLineGen].strip())
+def conv_lts(lst):
+    str_text = " ".join(map(str, lst))
+    str_text = str_text.translate({ord(c): " " for c in string.whitespace})
 
-    return challengeText
+    return str(str_text)
 
-
-def conv_LTS(lst):  # Converts The Generated ChallengeText List -> String
-    strText = " ".join([str(elem) for elem in lst])
-    strText = strText.translate({ord(c): " " for c in string.whitespace})
-
-    return str(strText)

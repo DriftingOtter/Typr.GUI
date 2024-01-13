@@ -28,25 +28,38 @@ class Profile(ft.UserControl):
         }
         self.dbManager = OttrDBM(self.dbConfig)
 
+        self.load_user_data()
+
+    def load_user_data(self):
         try:
+            with open("data.pkl", "rb") as file:
+                self.loaded_data = pickle.load(file)
+                self.currentUser = self.loaded_data
+
             self.userPersonalBestResults = self.find_pb()
-            self.userPersonalBestWPM = self.userPersonalBestResults[0]
-            self.userPersonalBestACC = self.userPersonalBestResults[1]
-            self.userPersonalBestTTK = self.userPersonalBestResults[2]
-
+            self.userPersonalBestWPM, self.userPersonalBestACC, self.userPersonalBestTTK = self.userPersonalBestResults
             self.totalTime = self.find_total_time()
-
-            self.currentUserUID = self.find_uid()
-        except TypeError:
-            self.userPersonalBestResults = "N/A"
-            self.userPersonalBestWPM = "N/A"
-            self.userPersonalBestACC = "N/A"
-            self.userPersonalBestTTK = "N/A"
-
-            self.totalTime = "N/A"
-
             self.currentUserUID = self.find_uid()
 
+        except (FileNotFoundError, pickle.UnpicklingError) as e:
+            self.handle_file_or_unpickling_error(e)
+
+        except Exception as e:
+            self.handle_unexpected_error(e)
+
+    def handle_file_or_unpickling_error(self, error):
+        print(f"Error: {error}")
+        self.userPersonalBestResults = "N/A", "N/A", "N/A"
+        self.userPersonalBestWPM, self.userPersonalBestACC, self.userPersonalBestTTK = self.userPersonalBestResults
+        self.totalTime = "N/A"
+        self.currentUserUID = self.find_uid()
+
+    def handle_unexpected_error(self, error):
+        print(f"An unexpected error occurred: {str(error)}")
+        self.userPersonalBestResults = "N/A", "N/A", "N/A"
+        self.userPersonalBestWPM, self.userPersonalBestACC, self.userPersonalBestTTK = self.userPersonalBestResults
+        self.totalTime = "N/A"
+        self.currentUserUID = self.find_uid()
 
     def create_page_controls(self):
         self.pageHeader = self.create_page_header()
@@ -59,13 +72,35 @@ class Profile(ft.UserControl):
             "Typist, welcome back!", f"{self.currentUserUID}"
         )
         self.time_played_card = self.create_player_card(
-            "Time Played", f"Time:{self.totalTime}"
+            "Time Played", f"Time: {self.totalTime}"
         )
         self.return_btn = ft.ElevatedButton(
             "Return", on_click=lambda _: self.page.go("/lessons")
         )
         self.logout_btn = ft.ElevatedButton(
             "Logout", on_click=lambda _: self.page.go("/")
+        )
+
+        self.dbGraphBannerFail = ft.Banner(
+            bgcolor=ft.colors.AMBER_100,
+            leading=ft.Icon(
+                ft.icons.WARNING_AMBER_ROUNDED, color=ft.colors.AMBER, size=40
+            ),
+            content=ft.Text("Oops, could not create a graph from user data to the database."),
+            actions=[
+                ft.TextButton("Close", on_click=self.fail_close_banner),
+            ],
+        )
+
+        self.dbGraphBannerPass = ft.Banner(
+            bgcolor=ft.colors.GREEN,
+            leading=ft.Icon(ft.icons.CHECK, color=ft.colors.GREEN, size=40),
+            content=ft.Text(
+                "Great, successfully created a graph from user data to the database."
+            ),
+            actions=[
+                ft.TextButton("Close", on_click=self.pass_close_banner),
+            ],
         )
 
         self.pageContent = ft.ListView(
@@ -89,28 +124,6 @@ class Profile(ft.UserControl):
             ]
         )
         self.pageContent.alignment = ft.alignment.center
-
-        self.dbGraphBannerFail = ft.Banner(
-            bgcolor=ft.colors.AMBER_100,
-            leading=ft.Icon(
-                ft.icons.WARNING_AMBER_ROUNDED, color=ft.colors.AMBER, size=40
-            ),
-            content=ft.Text("Oops, could not create graph from user data to database."),
-            actions=[
-                ft.TextButton("Close", on_click=self.fail_close_banner),
-            ],
-        )
-
-        self.dbGraphBannerPass = ft.Banner(
-            bgcolor=ft.colors.GREEN,
-            leading=ft.Icon(ft.icons.CHECK, color=ft.colors.GREEN, size=40),
-            content=ft.Text(
-                "Great, successfully created graph from user data to database."
-            ),
-            actions=[
-                ft.TextButton("Close", on_click=self.pass_close_banner),
-            ],
-        )
 
     def create_page_header(self):
         return ft.Row(
@@ -156,131 +169,64 @@ class Profile(ft.UserControl):
 
     def create_figures(self):
         try:
-            with open("data.pkl", "rb") as file:
-                self.loaded_data = pickle.load(file)
-                self.currentUser = self.loaded_data
-
-            wpm_figure = self.plot_wpm_date(self.currentUser)
-            acc_figure = self.plot_acc_date(self.currentUser)
-            ttk_figure = self.plot_ttk_date(self.currentUser)
+            wpm_figure = self.plot_figure("wpm", "WPM over Time")
+            acc_figure = self.plot_figure("acc", "Accuracy over Time")
+            ttk_figure = self.plot_figure("ttk", "TTK over Time")
 
             return wpm_figure, acc_figure, ttk_figure
 
-        except FileNotFoundError:
-            # Handle the case where the file is not found
-            print("Error: File 'data.pkl' not found.")
-
-        except pickle.UnpicklingError:
-            # Handle the case where there is an issue with unpickling (corrupted file)
-            print(
-                "Error: Unable to unpickle data from 'data.pkl'. File might be corrupted."
-            )
-
         except Exception as e:
-            # Handle any other unexpected exceptions
             print(f"An unexpected error occurred: {str(e)}")
 
         return None, None, None  # Return None for all figures in case of an error
 
     def find_pb(self):
         try:
-            with open("data.pkl", "rb") as file:
-                self.loaded_data = pickle.load(file)
-                self.currentUser = self.loaded_data
-
-                self.pbScore = self.dbManager.find_personal_best(self.currentUser)
-
+            self.pbScore = self.dbManager.find_personal_best(self.currentUser)
             return self.pbScore
 
-        except FileNotFoundError:
-            # Handle the case where the file is not found
-            print("Error: File 'data.pkl' not found.")
-
-        except pickle.UnpicklingError:
-            # Handle the case where there is an issue with unpickling (corrupted file)
-            print(
-                "Error: Unable to unpickle data from 'data.pkl'. File might be corrupted."
-            )
-
         except Exception as e:
-            # Handle any other unexpected exceptions
             print(f"An unexpected error occurred: {str(e)}")
 
-        return None, None, None
+        return "N/A", "N/A", "N/A"
 
     def find_total_time(self):
         try:
-            with open("data.pkl", "rb") as file:
-                self.loaded_data = pickle.load(file)
-                self.currentUser = self.loaded_data
-
-                self.totalTime = self.dbManager.find_total_time_played(self.currentUser)
-
+            self.totalTime = self.dbManager.find_total_time_played(self.currentUser)
             return self.totalTime
 
-        except FileNotFoundError:
-            # Handle the case where the file is not found
-            print("Error: File 'data.pkl' not found.")
-
-        except pickle.UnpicklingError:
-            # Handle the case where there is an issue with unpickling (corrupted file)
-            print(
-                "Error: Unable to unpickle data from 'data.pkl'. File might be corrupted."
-            )
-
         except Exception as e:
-            # Handle any other unexpected exceptions
             print(f"An unexpected error occurred: {str(e)}")
 
-        return None, None, None
+        return "N/A"
 
     def find_uid(self):
-        try:
-            with open("data.pkl", "rb") as file:
-                self.loaded_data = pickle.load(file)
-                self.currentUser = self.loaded_data
-            return self.currentUser
-
-        except FileNotFoundError:
-            # Handle the case where the file is not found
-            print("Error: File 'data.pkl' not found.")
-
-        except pickle.UnpicklingError:
-            # Handle the case where there is an issue with unpickling (corrupted file)
-            print(
-                "Error: Unable to unpickle data from 'data.pkl'. File might be corrupted."
-            )
-
-        except Exception as e:
-            # Handle any other unexpected exceptions
-            print(f"An unexpected error occurred: {str(e)}")
-
-        return None, None, None
+        return self.currentUser
 
     def create_profile_figure_container(self):
         return ft.Container(
             ft.Row(
                 controls=[
-                    ft.Container(
-                        PlotlyChart(self.wpm_figure, expand=False, original_size=False),
-                        width=800,
-                        height=500,
-                    ),
+                    self.create_plot_container("wpm", "WPM over Time", 800, 500),
                     ft.Container(padding=10),
-                    ft.Container(
-                        PlotlyChart(self.acc_figure, expand=False, original_size=False),
-                        width=800,
-                        height=500,
-                    ),
+                    self.create_plot_container("acc", "Accuracy over Time", 800, 500),
                     ft.Container(padding=10),
-                    ft.Container(
-                        PlotlyChart(self.ttk_figure, expand=False, original_size=False),
-                        width=800,
-                        height=500,
-                    ),
+                    self.create_plot_container("ttk", "TTK over Time", 800, 500),
                 ]
             )
         )
+
+    def create_plot_container(self, feature, title, width, height):
+        data = self.dbManager.fetch_data_for_plot(feature, self.currentUser)
+        if data:
+            fig = px.scatter(data, x="date", y=feature, title=title)
+            return ft.Container(
+                PlotlyChart(fig, expand=False, original_size=False),
+                width=width,
+                height=height,
+            )
+
+        return ft.Container()
 
     def create_player_card(self, title, subtitle):
         return ft.Card(
@@ -299,25 +245,13 @@ class Profile(ft.UserControl):
             )
         )
 
-    def plot_wpm_date(self, uid):
-        self.data = self.dbManager.fetch_data_for_plot("wpm", uid)
-        if self.data:
-            self.fig = px.scatter(self.data, x="date", y="wpm", title="WPM over Time")
-            return self.fig
+    def plot_figure(self, feature, plot_title):
+        data = self.dbManager.fetch_data_for_plot(feature, self.currentUser)
+        if data:
+            fig = px.scatter(data, x="date", y=feature, title=plot_title)
+            return fig
 
-    def plot_acc_date(self, uid):
-        self.data = self.dbManager.fetch_data_for_plot("acc", uid)
-        if self.data:
-            self.fig = px.scatter(
-                self.data, x="date", y="acc", title="Accuracy over Time"
-            )
-            return self.fig
-
-    def plot_ttk_date(self, uid):
-        self.data = self.dbManager.fetch_data_for_plot("ttk", uid)
-        if self.data:
-            self.fig = px.scatter(self.data, x="date", y="ttk", title="TTK over Time")
-            return self.fig
+        return None
 
     def pass_close_banner(self, e):
         self.dbGraphBannerPass.open = False
@@ -332,3 +266,4 @@ class Profile(ft.UserControl):
 
     def build(self):
         return self.pageContent
+

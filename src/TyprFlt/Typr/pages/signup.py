@@ -8,32 +8,72 @@ class Signup(ft.UserControl):
     def __init__(self, page):
         super().__init__()
         self.page = page
+        self.login_manager = self.initialize_database()
+        self.initialize_page_settings()
+        self.initialize_page_controls()
 
-        self.dbConfig = {
+    def initialize_database(self):
+        db_config = {
             "user": "root",
             "password": "",
             "host": "localhost",
             "database": "typr_acc_info",
             "raise_on_warnings": True,
         }
-        self.signupManager = OttrDBM(self.dbConfig)
+        return OttrDBM(db_config)
 
+    def initialize_page_settings(self):
+        self.db_config = {
+            "user": "root",
+            "password": "",
+            "host": "localhost",
+            "database": "typr_acc_info",
+            "raise_on_warnings": True,
+        }
+        self.signup_manager = OttrDBM(self.db_config)
         logging.basicConfig(level=logging.INFO)
+        self.page.title = "Typr: Your Personal Typing Tutor"
+        self.page.horizontal_alignment = ft.CrossAxisAlignment.CENTER
+        self.page.vertical_alignment = ft.MainAxisAlignment.CENTER
+        self.page.scroll = ft.ScrollMode.HIDDEN
+        self.page.on_resize = self.page_resize
 
-        page.title = "Typr: Your Personal Typing Tutor"
-        page.horizontal_alignment = ft.CrossAxisAlignment.CENTER
-        page.vertical_alignment = ft.MainAxisAlignment.CENTER
-        page.scroll = ft.ScrollMode.HIDDEN
-        page.on_resize = self.page_resize
+    def initialize_page_controls(self):
+        self.page_header = self.create_page_header()
+        self.email_heading = self.create_heading("Email Address")
+        self.email_icon = ft.Icon(name=ft.icons.EMAIL_ROUNDED, color=ft.colors.BLUE)
+        self.email_field = self.create_text_field("Enter Email Address")
 
-        # Page Controls
-        self.pageHeader = ft.Row(
+        self.pwd_heading = self.create_heading("Password")
+        self.pwd_icon = ft.Icon(name=ft.icons.PASSWORD_ROUNDED, color=ft.colors.BLUE)
+        self.pwd_field = self.create_text_field("Enter A Secure Password", password=True, can_reveal_password=True)
+
+        self.signup_btn = ft.ElevatedButton("Signup", on_click=self.signup_event)
+        self.login_btn = ft.ElevatedButton("Login", on_click=lambda _: self.page.go("/login"))
+
+        self.login_frame = ft.ListView(
             controls=[
-                ft.Image(
-                    src="images/Astro_Typing.png",
-                    height=300,
-                    fit=ft.ImageFit.FIT_WIDTH,
-                ),
+                self.create_column([self.create_row([self.email_icon, self.email_heading]), self.email_field]),
+                ft.Container(padding=5),
+                self.create_column([self.create_row([self.pwd_icon, self.pwd_heading]), self.pwd_field]),
+                self.create_column([ft.Container(padding=5), self.signup_btn, self.login_btn]),
+            ]
+        )
+
+        self.page_content = ft.ListView(
+            controls=[
+                ft.Container(self.page_header),
+                ft.Divider(),
+                ft.Container(padding=5),
+                ft.Container(self.login_frame),
+            ],
+        )
+        self.page_content.alignment = ft.alignment.center
+
+    def create_page_header(self):
+        return ft.Row(
+            controls=[
+                self.create_image("images/Astro_Typing.png", height=300, fit=ft.ImageFit.FIT_WIDTH),
                 ft.Container(
                     ft.Text(
                         "Signup",
@@ -52,119 +92,48 @@ class Signup(ft.UserControl):
             vertical_alignment=ft.CrossAxisAlignment.CENTER,
         )
 
-        self.emailHeading = ft.Text(
-            "Email Address",
+    def create_heading(self, text):
+        return ft.Text(
+            text,
             style=ft.TextThemeStyle.HEADLINE_SMALL,
             text_align=ft.TextAlign.JUSTIFY,
         )
 
-        self.emailIcon = ft.Icon(
-            name=ft.icons.EMAIL_ROUNDED,
-            color=ft.colors.BLUE,
-        )
-
-        self.emailField = ft.TextField(
-            label="Enter Email Address",
+    def create_text_field(self, label, password=False, can_reveal_password=False):
+        return ft.TextField(
+            label=label,
             autocorrect=False,
             enable_suggestions=False,
             smart_dashes_type=False,
             text_size=20,
+            password=password,
+            can_reveal_password=can_reveal_password,
         )
 
-        self.pwdHeading = ft.Text(
-            "Password",
-            style=ft.TextThemeStyle.HEADLINE_SMALL,
-            text_align=ft.TextAlign.JUSTIFY,
+    def create_image(self, src, height=200, fit=ft.ImageFit.FIT_WIDTH):
+        return ft.Image(
+            src=src,
+            height=height,
+            fit=fit,
         )
 
-        self.pwdIcon = ft.Icon(
-            name=ft.icons.PASSWORD_ROUNDED,
-            color=ft.colors.BLUE,
-        )
+    def create_row(self, controls):
+        return ft.Row(controls=controls)
 
-        self.pwdField = ft.TextField(
-            label="Enter A Secure Password",
-            autocorrect=False,
-            enable_suggestions=False,
-            smart_dashes_type=False,
-            text_size=20,
-            password=True,
-            can_reveal_password=True,
-        )
-
-        self.signupBtn = ft.ElevatedButton(
-            "Signup",
-            # on_click=lambda _: self.page.go("/lessons"),
-            on_click=self.signup_event,
-        )
-
-        self.loginBtn = ft.ElevatedButton(
-            "Login",
-            on_click=lambda _: self.page.go("/login"),
-        )
-
-        self.loginFrame = ft.ListView(
-            controls=[
-                ft.Column(
-                    controls=[
-                        ft.Row(
-                            controls=[
-                                self.emailIcon,
-                                self.emailHeading,
-                            ]
-                        ),
-                        self.emailField,
-                    ],
-                    alignment=ft.MainAxisAlignment.CENTER,
-                    horizontal_alignment=ft.CrossAxisAlignment.STRETCH,
-                ),
-                ft.Container(padding=5),
-                ft.Column(
-                    controls=[
-                        ft.Row(
-                            controls=[
-                                self.pwdIcon,
-                                self.pwdHeading,
-                            ]
-                        ),
-                        self.pwdField,
-                    ],
-                    alignment=ft.MainAxisAlignment.CENTER,
-                    horizontal_alignment=ft.CrossAxisAlignment.STRETCH,
-                ),
-                ft.Column(
-                    controls=[
-                        ft.Container(padding=5),
-                        self.signupBtn,
-                        self.loginBtn,
-                    ],
-                    alignment=ft.MainAxisAlignment.CENTER,
-                    horizontal_alignment=ft.CrossAxisAlignment.STRETCH,
-                ),
-            ]
-        )
-
-        self.pageContent = ft.ListView(
-            controls=[
-                ft.Container(self.pageHeader),
-                ft.Divider(),
-                ft.Container(padding=5),
-                ft.Container(self.loginFrame),
-            ],
-        )
-        self.pageContent.alignment = ft.alignment.center
+    def create_column(self, controls):
+        return ft.Column(controls=controls, alignment=ft.MainAxisAlignment.CENTER, horizontal_alignment=ft.CrossAxisAlignment.STRETCH)
 
     def signup_event(self, e):
         # Gather User Information
-        self.email = str(self.emailField.value).strip()
-        self.pwd = str(self.pwdField.value).strip()
+        self.email = str(self.email_field.value).strip()
+        self.pwd = str(self.pwd_field.value).strip()
 
         # Validate & Create New User In DB along with personal DB
-        self.returnValue = self.signupManager.createUser(self.email, self.pwd)
+        self.return_value = self.signup_manager.create_user(self.email, self.pwd)
 
-        if self.returnValue[0] == 0:
+        if self.return_value[0] == 0:
             with open("data.pkl", "wb") as file:
-                pickle.dump(str(self.returnValue[1]), file)
+                pickle.dump(str(self.return_value[1]), file)
 
             self.page.go("/lessons")
         else:
@@ -172,7 +141,8 @@ class Signup(ft.UserControl):
             pass
 
     def page_resize(self, e):
-        self.pageContent.alignment = ft.alignment.center
+        self.page_content.alignment = ft.alignment.center
 
     def build(self):
-        return self.pageContent
+        return self.page_content
+

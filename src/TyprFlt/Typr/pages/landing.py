@@ -1,28 +1,46 @@
 import flet as ft
 
-
 class Landing(ft.UserControl):
     def __init__(self, page):
         super().__init__()
         self.page = page
+        self.initialize_page_settings()
+        self.initialize_page_controls()
 
-        page.title = "Typr: Your Personal Typing Tutor"
+    def initialize_page_settings(self):
+        self.page.title = "Typr: Your Personal Typing Tutor"
+        self.page.vertical_alignment = ft.MainAxisAlignment.SPACE_AROUND
+        self.page.horizontal_alignment = ft.CrossAxisAlignment.CENTER
+        self.page.scroll = ft.ScrollMode.HIDDEN
 
-        page.vertical_alignment = ft.MainAxisAlignment.SPACE_AROUND
-        page.horizontal_alignment = ft.CrossAxisAlignment.CENTER
+    def initialize_page_controls(self):
+        self.page_header = self.create_page_header()
+        self.signup_btn = ft.ElevatedButton("Signup", on_click=lambda _: self.page.go("/signup"))
+        self.login_btn = ft.ElevatedButton("Login", on_click=lambda _: self.page.go("/login"))
+        self.why_use_typr_heading = self.create_heading("Why Use Typr?")
+        self.why_use_typr_body = self.create_text(
+            "In an era driven by efficient communication and productivity, the mastery of touch typing has become paramount. Enter Typr, an innovative website poised to revolutionize your typing skills. Through immersive interactive lessons and advanced visual feedback, Typr empowers professionals, academia students, & more to unlock their full typing potential like never before!"
+        )
+        self.keyboard_img = self.create_image("images/Red_Keyboard.jpg")
+        self.elevate_profile_heading = self.create_heading("1 | Elevate Your Professional Profile")
+        self.elevate_profile_body = self.create_text(
+            "In the competitive landscape of professionals and academia, possessing impeccable typing skills sets you apart from the rest. With Typr as your trusted companion, bid farewell to the inefficiencies of the hunt-and-peck method, and embrace the realm of touch typing expertise. Enhance your professional profile, boost productivity, and amplify your success with the unrivaled typing proficiency achieved through Typr."
+        )
+        self.learning_img = self.create_image("images/Computer_Learning.jpg")
+        self.immersive_lessons_heading = self.create_heading("2 | Immersive Interactive Lessons")
+        self.immersive_lessons_body = self.create_text(
+            "Typr offers a transformative learning experience that immerses you in a world of interactive lessons specifically designed for professionals and academia students. Seamlessly blending theory with practice, Typr guides you through a comprehensive curriculum, ensuring a holistic grasp of touch typing fundamentals. Prepare to witness remarkable progress as you engage with immersive exercises, honing your skills under Typr's expert guidance."
+        )
+        self.laptop_img = self.create_image("images/Typing_On_Screen.jpg")
+        self.visual_feedback_heading = self.create_heading("3 | Advanced Visual Feedback Mechanisms")
+        self.visual_feedback_body = self.create_text(
+            "At Typr, we understand that visual feedback is a catalyst for growth and improvement. Our state-of-the-art platform provides real-time visual emulation of your typing actions, enabling you to observe your performance with exceptional clarity. From keystroke accuracy to typing speed, every nuance of your progress is meticulously showcased, allowing you to fine-tune your skills and reach new heights of typing proficiency."
+        )
 
-        page.scroll = ft.ScrollMode.HIDDEN
-
-        # ==============
-        # Page Controls
-        # ==============
-        self.pageHeader = ft.Row(
+    def create_page_header(self):
+        return ft.Row(
             controls=[
-                ft.Image(
-                    src="images/Astro_Typing.png",
-                    height=200,
-                    fit=ft.ImageFit.FIT_WIDTH,
-                ),
+                self.create_image("images/Astro_Typing.png", height=200, fit=ft.ImageFit.FIT_WIDTH),
                 ft.Container(
                     ft.Text(
                         "Typr: Your Personal Typing Tutor",
@@ -41,124 +59,62 @@ class Landing(ft.UserControl):
             vertical_alignment=ft.CrossAxisAlignment.CENTER,
         )
 
-        # self.typingForwarderBtn = ft.ElevatedButton(
-        # "Go To Typing Page",
-        # on_click=lambda _: self.page.go("/typingtest"),
-        # )
-
-        self.signupBtn = ft.ElevatedButton(
-            "Signup",
-            on_click=lambda _: self.page.go("/signup"),
-        )
-
-        self.loginBtn = ft.ElevatedButton(
-            "Login",
-            on_click=lambda _: self.page.go("/login"),
-        )
-
-        self.whyUseTyprHeading = ft.Text(
-            "Why Use Typr?",
+    def create_heading(self, text):
+        return ft.Text(
+            text,
             style=ft.TextThemeStyle.HEADLINE_LARGE,
             text_align=ft.TextAlign.JUSTIFY,
             weight=ft.FontWeight.BOLD,
             italic=True,
         )
 
-        self.whyUseTyprBody = ft.Text(
-            "In an era driven by efficient communication and productivity, the mastery of touch typing has become paramount. Enter Typr, an innovative website poised to revolutionize your typing skills. Through immersive interactive lessons and advanced visual feedback, Typr empowers professionals, academia students, & more to unlock their full typing potential like never before!",
+    def create_text(self, text):
+        return ft.Text(
+            text,
             style=ft.TextThemeStyle.HEADLINE_SMALL,
             text_align=ft.TextAlign.JUSTIFY,
         )
 
-        self.keyboardIMG = ft.Image(
-            src="images/Red_Keyboard.jpg",
-            height=200,
-            fit=ft.ImageFit.FIT_WIDTH,
-        )
-
-        self.elevateProfileHeading = ft.Text(
-            "1 | Elevate Your Professional Profile",
-            style=ft.TextThemeStyle.HEADLINE_LARGE,
-            text_align=ft.TextAlign.JUSTIFY,
-            weight=ft.FontWeight.BOLD,
-        )
-
-        self.elevateProfileBody = ft.Text(
-            "In the competitive landscape of professionals and academia, possessing impeccable typing skills sets you apart from the rest. With Typr as your trusted companion, bid farewell to the inefficiencies of the hunt-and-peck method, and embrace the realm of touch typing expertise. Enhance your professional profile, boost productivity, and amplify your success with the unrivaled typing proficiency achieved through Typr.",
-            style=ft.TextThemeStyle.HEADLINE_SMALL,
-            text_align=ft.TextAlign.JUSTIFY,
-        )
-
-        self.learningIMG = ft.Image(
-            src="images/Computer_Learning.jpg",
-            height=200,
-            fit=ft.ImageFit.FIT_WIDTH,
-        )
-
-        self.immersiveLessonsHeading = ft.Text(
-            "2 | Immersive Interactive Lessons",
-            style=ft.TextThemeStyle.HEADLINE_LARGE,
-            text_align=ft.TextAlign.JUSTIFY,
-            weight=ft.FontWeight.BOLD,
-        )
-
-        self.immersiveLessonsHeadingBody = ft.Text(
-            "Typr offers a transformative learning experience that immerses you in a world of interactive lessons specifically designed for professionals and academia students. Seamlessly blending theory with practice, Typr guides you through a comprehensive curriculum, ensuring a holistic grasp of touch typing fundamentals. Prepare to witness remarkable progress as you engage with immersive exercises, honing your skills under Typr's expert guidance.",
-            style=ft.TextThemeStyle.HEADLINE_SMALL,
-            text_align=ft.TextAlign.JUSTIFY,
-        )
-
-        self.laptopIMG = ft.Image(
-            src="images/Typing_On_Screen.jpg",
-            height=200,
-            fit=ft.ImageFit.FIT_WIDTH,
-        )
-
-        self.visualFeedbackHeading = ft.Text(
-            "3 | Advanced Visual Feedback Mechanisms",
-            style=ft.TextThemeStyle.HEADLINE_LARGE,
-            text_align=ft.TextAlign.JUSTIFY,
-            weight=ft.FontWeight.BOLD,
-        )
-
-        self.visualFeedbackBody = ft.Text(
-            "At Typr, we understand that visual feedback is a catalyst for growth and improvement. Our state-of-the-art platform provides real-time visual emulation of your typing actions, enabling you to observe your performance with exceptional clarity. From keystroke accuracy to typing speed, every nuance of your progress is meticulously showcased, allowing you to fine-tune your skills and reach new heights of typing proficiency.",
-            style=ft.TextThemeStyle.HEADLINE_SMALL,
-            text_align=ft.TextAlign.JUSTIFY,
+    def create_image(self, src, height=200, fit=ft.ImageFit.FIT_WIDTH):
+        return ft.Image(
+            src=src,
+            height=height,
+            fit=fit,
         )
 
     def build(self):
         return ft.ListView(
             controls=[
-                self.pageHeader,
+                self.page_header,
                 ft.Container(padding=10),
-                self.signupBtn,
+                self.signup_btn,
                 ft.Divider(),
-                self.loginBtn,
+                self.login_btn,
                 ft.Container(padding=15),
-                self.whyUseTyprHeading,
+                self.why_use_typr_heading,
                 ft.Container(padding=10),
-                self.whyUseTyprBody,
+                self.why_use_typr_body,
                 ft.Container(padding=15),
-                self.keyboardIMG,
+                self.keyboard_img,
                 ft.Container(padding=15),
-                self.elevateProfileHeading,
+                self.elevate_profile_heading,
                 ft.Container(padding=10),
-                self.elevateProfileBody,
+                self.elevate_profile_body,
                 ft.Container(padding=15),
-                self.learningIMG,
+                self.learning_img,
                 ft.Container(padding=15),
-                self.immersiveLessonsHeading,
+                self.immersive_lessons_heading,
                 ft.Container(padding=10),
-                self.elevateProfileBody,
+                self.elevate_profile_body,
                 ft.Container(padding=15),
-                self.laptopIMG,
+                self.laptop_img,
                 ft.Container(padding=15),
-                self.visualFeedbackHeading,
+                self.visual_feedback_heading,
                 ft.Container(padding=10),
-                self.visualFeedbackBody,
+                self.visual_feedback_body,
                 ft.Container(padding=15),
             ],
             expand=True,
             padding=ft.padding.only(top=20, bottom=20, left=20, right=20),
         )
+

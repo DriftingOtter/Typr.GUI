@@ -12,7 +12,7 @@ class OttrDBM:
         self.config = dbConfig
         self.connection = None
 
-    def connectToDatabase(self):
+    def connect_to_database(self):
         try:
             # Connect to MariaDB
             self.connection = mysql.connector.connect(**self.config)
@@ -24,9 +24,9 @@ class OttrDBM:
                 logging.error("Error: %s", err)
             return None
 
-    def createUserTable(self, cursor):
+    def create_user_table(self, cursor):
         # Create the users table if not exists
-        createTableQuery = """
+        create_table_query = """
             CREATE TABLE IF NOT EXISTS users (
                 id INT AUTO_INCREMENT PRIMARY KEY,
                 uid VARCHAR(36),
@@ -34,44 +34,44 @@ class OttrDBM:
                 password VARCHAR(255)
             )
         """
-        cursor.execute(createTableQuery)
+        cursor.execute(create_table_query)
 
-    def isValidEmail(self, email):
+    def is_valid_email(self, email):
         pattern = r"[^@]+@[^@]+\.[^@]+$"
         return re.match(pattern, email) is not None
 
-    def isStrongPassword(self, password):
+    def is_strong_password(self, password):
         if len(password) < 8:
             return False
 
-        hasCapitalLetter = False
-        hasNumber = False
-        hasSpecialCharacter = False
+        has_capital_letter = False
+        has_number = False
+        has_special_character = False
 
         for char in password:
             if char.isupper():
-                hasCapitalLetter = True
+                has_capital_letter = True
             elif char.isdigit():
-                hasNumber = True
+                has_number = True
             elif not char.isalnum():
-                hasSpecialCharacter = True
+                has_special_character = True
 
-        return hasCapitalLetter and hasNumber and hasSpecialCharacter
+        return has_capital_letter and has_number and has_special_character
 
-    def createUser(self, email, password):
-        if not self.isValidEmail(email):
+    def create_user(self, email, password):
+        if not self.is_valid_email(email):
             logging.error(
                 "Error: Invalid email format. Please provide a valid email address."
             )
             return 1  # Error code for invalid email format
 
-        if not self.isStrongPassword(password):
+        if not self.is_strong_password(password):
             logging.error(
                 "Error: Weak password. Please use a password with at least 8 characters, one capital letter, one number, and one special character."
             )
             return 2  # Error code for weak password
 
-        connection = self.connectToDatabase()
+        connection = self.connect_to_database()
         if not connection:
             return 3  # Error code for database connection failure
 
@@ -82,20 +82,20 @@ class OttrDBM:
                     logging.info("Email already exists. Please choose a different one.")
                     return 4  # Error code for email already exists
 
-                hashedPassword = hashlib.sha256(password.encode()).hexdigest()
-                userId = str(uuid.uuid4())
+                hashed_password = hashlib.sha256(password.encode()).hexdigest()
+                user_id = str(uuid.uuid4())
 
                 cursor.execute(
                     "INSERT INTO users (uid, email, password) VALUES (%s, %s, %s)",
-                    (userId, email, hashedPassword),
+                    (user_id, email, hashed_password),
                 )
 
             connection.commit()
 
             logging.info(
-                "User with email %s successfully created. UID: %s", email, userId
+                "User with email %s successfully created. UID: %s", email, user_id
             )
-            return 0, userId  # Success
+            return 0, user_id  # Success
 
         except Exception as e:
             logging.error("An error occurred during user creation: %s", str(e))
@@ -105,14 +105,14 @@ class OttrDBM:
             if connection:
                 connection.close()
 
-    def authenticateUser(self, email, password):
-        if not self.isValidEmail(email):
+    def authenticate_user(self, email, password):
+        if not self.is_valid_email(email):
             logging.error(
                 "Error: Invalid email format. Please provide a valid email address."
             )
             return 1  # Error code for invalid email format
 
-        connection = self.connectToDatabase()
+        connection = self.connect_to_database()
         if not connection:
             return 2  # Error code for database connection failure
 
@@ -121,16 +121,16 @@ class OttrDBM:
                 cursor.execute(
                     "SELECT password, uid FROM users WHERE email = %s", (email,)
                 )
-                userData = cursor.fetchone()
+                user_data = cursor.fetchone()
 
-                if userData:
-                    hashedPassword, userId = userData
-                    enteredPasswordHash = hashlib.sha256(password.encode()).hexdigest()
+                if user_data:
+                    hashed_password, user_id = user_data
+                    entered_password_hash = hashlib.sha256(password.encode()).hexdigest()
 
-                    if enteredPasswordHash == hashedPassword:
-                        logging.info("Login successful. UID: %s", userId)
+                    if entered_password_hash == hashed_password:
+                        logging.info("Login successful. UID: %s", user_id)
 
-                        return 0, userId  # Success
+                        return 0, user_id  # Success
 
                     else:
                         logging.error("Error: Invalid email or password.")
@@ -148,8 +148,8 @@ class OttrDBM:
             if connection:
                 connection.close()
 
-    def addTestScore(self, uid, wpm, acc, ttk, test_type, date):
-        connection = self.connectToDatabase()
+    def add_test_score(self, user_id, wpm, acc, ttk, test_type, date):
+        connection = self.connect_to_database()
         if not connection:
             return 6  # Error code for database connection failure
 
@@ -158,12 +158,12 @@ class OttrDBM:
                 # Insert the new test score record
                 cursor.execute(
                     "INSERT INTO users_scores (uid, wpm, acc, ttk, test_type, date) VALUES (%s, %s, %s, %s, %s, %s)",
-                    (uid, wpm, acc, ttk, test_type, date),
+                    (user_id, wpm, acc, ttk, test_type, date),
                 )
 
             connection.commit()
 
-            logging.info("Test score successfully added for user %s.", uid)
+            logging.info("Test score successfully added for user %s.", user_id)
             return 0  # Success
 
         except Exception as e:
@@ -174,8 +174,8 @@ class OttrDBM:
             if connection:
                 connection.close()
 
-    def find_personal_best(self, uid):
-        connection = self.connectToDatabase()
+    def find_personal_best(self, user_id):
+        connection = self.connect_to_database()
         if not connection:
             return None  # Return None for database connection failure
 
@@ -184,21 +184,21 @@ class OttrDBM:
                 # Query the database to find the greatest WPM, ACC, and TTK scores for the given UID
                 cursor.execute(
                     "SELECT MAX(wpm), MAX(acc), MAX(ttk) FROM users_scores WHERE uid = %s",
-                    (uid,),
+                    (user_id,),
                 )
                 personal_best = cursor.fetchone()
 
                 if personal_best and any(value is not None for value in personal_best):
                     logging.info(
                         "Personal best scores for user %s: WPM: %s, ACC: %s, TTK: %s",
-                        uid,
+                        user_id,
                         personal_best[0],
                         personal_best[1],
                         personal_best[2],
                     )
                     return personal_best  # Return the personal best WPM, ACC, and TTK scores
 
-                logging.info("No test scores found for user %s", uid)
+                logging.info("No test scores found for user %s", user_id)
                 return None  # Return None if no test scores found for the given UID
 
         except Exception as e:
@@ -211,8 +211,8 @@ class OttrDBM:
             if connection:
                 connection.close()
 
-    def find_total_time_played(self, uid):
-        connection = self.connectToDatabase()
+    def find_total_time_played(self, user_id):
+        connection = self.connect_to_database()
         if not connection:
             return None  # Return None for database connection failure
 
@@ -220,7 +220,7 @@ class OttrDBM:
             with connection.cursor() as cursor:
                 # Query the database to find the total time played for the given UID
                 cursor.execute(
-                    "SELECT SUM(ttk) FROM users_scores WHERE uid = %s", (uid,)
+                    "SELECT SUM(ttk) FROM users_scores WHERE uid = %s", (user_id,)
                 )
                 total_time_seconds = cursor.fetchone()[0]
 
@@ -230,11 +230,11 @@ class OttrDBM:
                         datetime.timedelta(seconds=int(total_time_seconds))
                     )
                     logging.info(
-                        "Total time played for user %s: %s", uid, total_time_formatted
+                        "Total time played for user %s: %s", user_id, total_time_formatted
                     )
                     return total_time_formatted  # Return the total time played
 
-                logging.info("No test scores found for user %s", uid)
+                logging.info("No test scores found for user %s", user_id)
                 return None  # Return None if no test scores found for the given UID
 
         except Exception as e:
@@ -247,8 +247,8 @@ class OttrDBM:
             if connection:
                 connection.close()
 
-    def fetch_data_for_plot(self, metric, uid):
-        connection = self.connectToDatabase()
+    def fetch_data_for_plot(self, metric, user_id):
+        connection = self.connect_to_database()
         if not connection:
             return None  # Return None for database connection failure
 
@@ -256,7 +256,7 @@ class OttrDBM:
             with connection.cursor(dictionary=True) as cursor:
                 # Query the database to fetch the specified metric (WPM, ACC, or TTK) for a given UID
                 cursor.execute(
-                    f"SELECT date, {metric} FROM users_scores WHERE uid = %s", (uid,)
+                    f"SELECT date, {metric} FROM users_scores WHERE uid = %s", (user_id,)
                 )
                 data = cursor.fetchall()
 
@@ -272,15 +272,3 @@ class OttrDBM:
             if connection:
                 connection.close()
 
-
-# Example usage:
-# db_config = {
-#     "host": "your_host",
-#     "user": "your_user",
-#     "password": "your_password",
-#     "database": "your_database"
-# }
-# ottr_dbm = OttrDBM(db_config)
-# ottr_dbm.createTestScoresTable(cursor, "example@email.com")
-# result = ottr_dbm.addTestScore("example@email.com", 100, 95, 30, "A")
-# print(result)

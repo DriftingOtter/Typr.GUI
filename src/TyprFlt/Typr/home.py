@@ -1,23 +1,30 @@
 import flet as ft
 
-
 class Login(ft.UserControl):
     def __init__(self, page):
         super().__init__()
         self.page = page
+        self.initialize_page_settings()
+        self.create_page_controls()
 
-        page.title = "Typr: Your Personal Typing Tutor"
+    def initialize_page_settings(self):
+        self.page.title = "Typr: Your Personal Typing Tutor"
+        self.page.horizontal_alignment = ft.CrossAxisAlignment.CENTER
+        self.page.vertical_alignment = ft.MainAxisAlignment.CENTER
+        self.page.scroll = ft.ScrollMode.HIDDEN
+        self.page.on_resize = self.page_resize
 
-        page.horizontal_alignment = ft.CrossAxisAlignment.CENTER
-        page.vertical_alignment = ft.MainAxisAlignment.CENTER
+    def create_page_controls(self):
+        self.pageHeader = self.create_page_header()
+        
+        self.pageContent = ft.ListView(
+            controls=[self.pageHeader],
+            alignment=ft.MainAxisAlignment.CENTER,
+            horizontal_alignment=ft.CrossAxisAlignment.STRETCH
+        )
 
-        page.scroll = ft.ScrollMode.HIDDEN
-        page.on_resize = self.page_resize
-
-        # ==============
-        # Page Controls
-        # ==============
-        self.pageHeader = ft.Row(
+    def create_page_header(self):
+        return ft.Row(
             controls=[
                 ft.Image(
                     src="images/Astro_Typing.png",
@@ -42,18 +49,9 @@ class Login(ft.UserControl):
             vertical_alignment=ft.CrossAxisAlignment.CENTER,
         )
 
-        self.pageContent = ft.ListView(
-            controls=[
-                self.pageHeader
-                    ],
-                alignment=ft.MainAxisAlignment.CENTER,
-                horizontal_alignment=ft.CrossAxisAlignment.STRETCH
-        )
-
-        self.pageContent.alignment = ft.alignment.center
-
     def page_resize(self, e):
         self.pageContent.alignment = ft.alignment.center
 
     def build(self):
         return self.pageContent
+
