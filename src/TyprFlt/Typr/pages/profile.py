@@ -28,14 +28,25 @@ class Profile(ft.UserControl):
         }
         self.dbManager = OttrDBM(self.dbConfig)
 
-        self.userPersonalBestResults = self.find_pb()
-        self.userPersonalBestWPM = self.userPersonalBestResults[0]
-        self.userPersonalBestACC = self.userPersonalBestResults[1]
-        self.userPersonalBestTTK = self.userPersonalBestResults[2]
+        try:
+            self.userPersonalBestResults = self.find_pb()
+            self.userPersonalBestWPM = self.userPersonalBestResults[0]
+            self.userPersonalBestACC = self.userPersonalBestResults[1]
+            self.userPersonalBestTTK = self.userPersonalBestResults[2]
 
-        self.totalTime = self.find_total_time()
+            self.totalTime = self.find_total_time()
 
-        self.currentUserUID = self.find_uid()
+            self.currentUserUID = self.find_uid()
+        except TypeError:
+            self.userPersonalBestResults = "N/A"
+            self.userPersonalBestWPM = "N/A"
+            self.userPersonalBestACC = "N/A"
+            self.userPersonalBestTTK = "N/A"
+
+            self.totalTime = "N/A"
+
+            self.currentUserUID = self.find_uid()
+
 
     def create_page_controls(self):
         self.pageHeader = self.create_page_header()
