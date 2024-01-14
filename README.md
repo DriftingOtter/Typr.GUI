@@ -1,3 +1,5 @@
+<img src="/src/TyprFlt/Typr/assets/images/Astro_Typing.png" alt="Typr Logo Of An Astronaut On A Laptop" style="width: 500px; height: 500px;">
+
 # Typr - Your Personal Typing Tutor
 
 Typr is an interactive touch typing learning application designed to improve your typing skills and boost productivity. Whether you're a beginner or looking to refine your touch typing abilities, Typr offers a structured set of lessons to enhance your typing speed and accuracy.
