@@ -2,6 +2,8 @@
 
 Typr is an interactive touch typing learning application designed to improve your typing skills and boost productivity. Whether you're a beginner or looking to refine your touch typing abilities, Typr offers a structured set of lessons to enhance your typing speed and accuracy.
 
+> This is my first full stack application utilizing python (flet) as frontend, MariaDB as backend/storage, and custom made OttrDBM as api to unify communication between ends.
+
 ## Features
 
 - **Structured Lessons:** Typr provides lessons to learn and practice touch typing, starting from the basics to more advanced exercises.
@@ -29,8 +31,8 @@ Ensure you have the following dependencies installed:
 ## How to Run
 
 1. Clone the Typr repository to your local machine.
-2. Install the required dependencies using `pip install -r requirements.txt`.
-3. Run the application with `python main.py`.
+2. Install the required dependencies
+3. Run the application with `flet run main.py`.
 
 ## Benefits of Typr
 
